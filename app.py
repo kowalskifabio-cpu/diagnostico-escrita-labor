@@ -68,11 +68,9 @@ elif passo == "2. Os 6 Pilares":
 
 elif passo == "3. Diagnóstico Estratégico":
     st.markdown('<p class="titulo-sessao">Mapeamento de Percepções e Gargalos</p>', unsafe_allow_html=True)
-    tab_financeiro, tab_operacional, tab_comercial, tab_futuro = st.tabs([
-        "💰 Saúde Financeira", "⚙️ Eficiência Operacional", "🚀 Comercial e Vendas", "🔮 Visão de Futuro"
-    ])
+    tab_fin, tab_ope, tab_com, tab_fut = st.tabs(["💰 Saúde Financeira", "⚙️ Eficiência Operacional", "🚀 Comercial e Vendas", "🔮 Visão de Futuro"])
 
-    with tab_financeiro:
+    with tab_fin:
         st.markdown('<p class="pergunta-texto">1. Maturidade da Precificação</p>', unsafe_allow_html=True)
         st.select_slider("Percepção de lucro por contrato:", options=["Déficit", "Subestimado", "Equilibrado", "Lucrativo"], key="q1")
         st.markdown('<p class="pergunta-texto">2. Recuperação de Margem</p>', unsafe_allow_html=True)
@@ -80,7 +78,7 @@ elif passo == "3. Diagnóstico Estratégico":
         st.markdown('<p class="pergunta-texto">3. Vazamentos de Receita</p>', unsafe_allow_html=True)
         st.multiselect("Onde perdem dinheiro sem cobrar?", ["Reuniões extras", "Urgências", "Retrabalho", "Consultoria"], key="q_vazamento")
 
-    with tab_operacional:
+    with tab_ope:
         st.markdown('<p class="pergunta-texto">4. Drenos de Energia (Segmentação)</p>', unsafe_allow_html=True)
         st.multiselect("Segmentos críticos:", ["Simples", "Presumido", "MEI", "Rural"], key="q2")
         st.markdown('<p class="pergunta-texto">5. Sobrecarga do Time (0-10)</p>', unsafe_allow_html=True)
@@ -88,13 +86,13 @@ elif passo == "3. Diagnóstico Estratégico":
         st.markdown('<p class="pergunta-texto">6. O Gargalo Real</p>', unsafe_allow_html=True)
         st.selectbox("Onde quebraria primeiro?", ["Atendimento", "Fiscal", "Contábil", "DP"], key="q_quebra")
 
-    with tab_comercial:
+    with tab_com:
         st.markdown('<p class="pergunta-texto">7. Filtro de Entrada</p>', unsafe_allow_html=True)
         st.radio("Critério de aceite:", ["Tudo", "Básico", "Por Segmento", "Rigoroso"], key="q_filtro")
         st.markdown('<p class="pergunta-texto">8. Slots de Capacidade</p>', unsafe_allow_html=True)
         st.number_input("Novos contratos/mês com qualidade:", min_value=0, value=5, key="q7")
 
-    with tab_futuro:
+    with tab_fut:
         st.markdown('<p class="pergunta-texto">9. Obstáculos ao Projeto</p>', unsafe_allow_html=True)
         st.text_area("O que pode impedir o sucesso?", key="q_barreiras")
         st.markdown('<p class="pergunta-texto">10. Prioridade Máxima</p>', unsafe_allow_html=True)
@@ -102,22 +100,18 @@ elif passo == "3. Diagnóstico Estratégico":
 
 elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
-    st.write("Clique abaixo para salvar o diagnóstico oficial na planilha do Google.")
-
     if st.button("🚀 Salvar Diagnóstico"):
         try:
-            # Capturando e limpando os dados das multiselects
-            vazamentos_lista = st.session_state.get('q_vazamento', [])
-            segmentos_lista = st.session_state.get('q2', [])
+            vaz_lista = st.session_state.get('q_vazamento', [])
+            seg_lista = st.session_state.get('q2', [])
             
-            # Criando o dicionário EXATAMENTE com os nomes da sua planilha
             novo_registro = {
                 "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
                 "Cliente": "Escrita Contabilidade",
                 "Precificacao": str(st.session_state.get('q1', '')),
                 "Revisao_Contratos": str(st.session_state.get('q_revisao', '')),
-                "Vazamentos": ", ".join(vazamentos_lista) if vazamentos_lista else "",
-                "Segmentos_Criticos": ", ".join(segmentos_lista) if segmentos_lista else "",
+                "Vazamentos": ", ".join(vaz_lista) if vaz_lista else "",
+                "Segmentos_Criticos": ", ".join(seg_lista) if seg_lista else "",
                 "Nivel_Estresse": int(st.session_state.get('q3', 0)),
                 "Gargalo_Quebra": str(st.session_state.get('q_quebra', '')),
                 "Filtro_Comercial": str(st.session_state.get('q_filtro', '')),
@@ -126,48 +120,26 @@ elif passo == "4. Registro Final":
                 "Prioridade_30_Dias": str(st.session_state.get('q4', ''))
             }
             
-            # Lógica de atualização direta
             df_atual = conn.read(worksheet="Página1")
             df_novo = pd.DataFrame([novo_registro])
-            
-            # Forçamos o DataFrame novo a ter as mesmas colunas do atual para evitar erro de concatenação
             df_novo = df_novo.reindex(columns=df_atual.columns)
-            
             df_final = pd.concat([df_atual, df_novo], ignore_index=True)
-            conn.update(worksheet="Página1", data=df_final)
             
+            conn.update(worksheet="Página1", data=df_final)
             st.balloons()
-            st.success("Dados registrados com sucesso na planilha!")
+            st.success("Dados registrados com sucesso!")
         except Exception as e:
             st.error(f"Erro técnico: {e}")
-            st.info("Dica: Verifique se a Coluna F na planilha termina com 's' (Segmentos_Criticos).")
 
 elif passo == "5. Dados e Documentos":
     st.markdown('<p class="titulo-sessao">Solicitação de Dados - Mês 1</p>', unsafe_allow_html=True)
     st.write("Para iniciarmos a arquitetura da precificação e do plano de contas, precisamos dos seguintes itens:")
     
-    with st.container():
-        st.markdown('<div class="doc-check">📁 <strong>Dados Financeiros:</strong><br>- Relatório de faturamento dos últimos 12 meses por cliente.<br>- Balancete ou Plano de Contas atual (mesmo que incompleto).<br>- Lista de custos fixos mensais (Aluguel, Software, Folha).</div>', unsafe_allow_html=True)
-        
-        st.markdown('<div class="doc-check">📄 <strong>Dados Comerciais:</strong><br>- Modelo de contrato atual utilizado.<br>- Modelo de proposta comercial enviada para novos clientes.<br>- Tabela de preços vigente (se houver).</div>', unsafe_allow_html=True)
-        
-        st.markdown('<div class="doc-check">⚙️ <strong>Dados Operacionais:</strong><br>- Lista de colaboradores por setor.<br>- Estimativa de "Volume de Notas/Lançamentos" por segmento (amostragem).</div>', unsafe_allow_html=True)
+    st.markdown('<div class="doc-check">📁 <strong>Dados Financeiros:</strong><br>- Relatório de faturamento dos últimos 12 meses por cliente.<br>- Balancete ou Plano de Contas atual.<br>- Lista de custos fixos mensais.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="doc-check">📄 <strong>Dados Comerciais:</strong><br>- Modelo de contrato atual.<br>- Modelo de proposta comercial.<br>- Tabela de preços vigente.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="doc-check">⚙️ <strong>Dados Operacionais:</strong><br>- Lista de colaboradores por setor.<br>- Volume estimado de lançamentos/notas por segmento.</div>', unsafe_allow_html=True)
 
-    st.warning("⚠️ **Próximo Passo:** Enviar estes dados via E-mail ou Drive em até 48h após esta reunião.")
+    st.warning("⚠️ **Próximo Passo:** Enviar estes dados em até 48h após esta reunião.")
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
-            df_atual = conn.read(worksheet="Página1")
-            df_novo = pd.DataFrame([novo_registro])
-            
-            # Forçamos o DataFrame novo a ter as mesmas colunas do atual para evitar erro de concatenação
-            df_novo = df_novo.reindex(columns=df_atual.columns)
-            
-            df_final = pd.concat([df_atual, df_novo], ignore_index=True)
-            conn.update(worksheet="Página1", data=df_final)
-            
-            st.balloons()
-            st.success("Dados registrados com sucesso na planilha!")
-        except Exception as e:
-            st.error(f"Erro técnico: {e}")
-            st.info("Dica: Verifique se a Coluna F na planilha termina com 's' (Segmentos_Criticos).")
