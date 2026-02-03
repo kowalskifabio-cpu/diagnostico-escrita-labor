@@ -1,64 +1,113 @@
 import streamlit as st
+from streamlit_option_menu import option_menu
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
+from datetime import datetime
 
-# Configuração visual
-st.set_page_config(page_title="Diagnóstico Labor OS", layout="centered")
+# --- CONFIGURAÇÃO DA PÁGINA ---
+st.set_page_config(page_title="Labor OS | Diagnóstico Escrita Contabilidade", layout="wide")
 
-# Estilização para ficar "bonito"
+# --- CONEXÃO COM GOOGLE SHEETS ---
+# Certifique-se de ter configurado as Secrets no Streamlit Cloud
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# --- ESTILO VISUAL LABOR BUSINESS ---
 st.markdown("""
     <style>
-    .stProgress > div > div > div > div { background-color: #ff9900; }
-    h1 { color: #2c3e50; }
-    .pergunta { font-size: 18px; font-weight: bold; color: #ff9900; margin-top: 25px; }
+    .main { background-color: #ffffff; }
+    .titulo-sessao { color: #2c3e50; font-size: 32px; font-weight: bold; }
+    .sub-sessao { color: #ff9900; font-size: 18px; font-weight: 500; }
+    .pnl-box { 
+        background-color: #f1f3f6; padding: 20px; border-radius: 15px; 
+        border-left: 8px solid #ff9900; margin-bottom: 20px; 
+    }
+    .pergunta-texto { color: #2c3e50; font-weight: bold; font-size: 18px; margin-top: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🧠 Diagnóstico Estratégico Labor OS")
-st.write("Escrita Contabilidade | Plano Light")
+# --- NAVEGAÇÃO LATERAL (ROTEIRO 90 MIN) ---
+with st.sidebar:
+    st.image("tela inicial.png", use_container_width=True)
+    st.markdown("### 🕒 Roteiro da Reunião")
+    passo = option_menu(
+        menu_title=None,
+        options=["1. Abertura", "2. Os 6 Pilares", "3. Diagnóstico PNL", "4. Registro Final"],
+        icons=["play-fill", "diagram-3", "brain", "save"],
+        menu_icon="cast", default_index=0,
+        styles={"nav-link-selected": {"background-color": "#ff9900"}}
+    )
+    st.divider()
+    st.caption("Plano Light - 12 Meses")
 
-# Barra de progresso para dar sensação de avanço (PNL - Realização)
-etapa = st.sidebar.select_slider("Etapas do Diagnóstico", options=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-st.progress(etapa * 10)
+# --- CONTEÚDO DAS ETAPAS ---
 
-# --- PERGUNTAS ---
+if passo == "1. Abertura":
+    st.markdown('<p class="titulo-sessao">Kick-off: Plano Labor OS</p>', unsafe_allow_html=True)
+    st.image("tela inicial.png", use_container_width=True)
+    
+    st.markdown('<div class="pnl-box"><strong>Ponte ao Futuro (PNL):</strong><br>Imagine a Escrita Contabilidade daqui a 12 meses. O crescimento é previsível, a precificação é automática e você sente total alívio ao olhar os indicadores de lucro real. Como é essa sensação?</div>', unsafe_allow_html=True)
+    
+    st.write("### 🎯 Objetivo do Dia")
+    st.write("Estabelecer a governança inicial, diagnosticar gargalos e arquitetar o Mês 1.")
 
-if etapa == 1:
-    st.markdown('<p class="pergunta">1. Ao olhar para sua carteira de 800 clientes, qual é a imagem que vem à mente sobre o controle dos prazos?</p>', unsafe_allow_html=True)
-    st.radio("Escolha a que mais faz sentido:", ["Uma engrenagem lubrificada", "Um incêndio sendo controlado", "Uma névoa onde não vejo o fim"])
+elif passo == "2. Os 6 Pilares":
+    st.markdown('<p class="titulo-sessao">Estrutura de Governança (12 Meses)</p>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### 🛒 Precificação\n*Método alinhado ao custo real e segmentação.*")
+        st.markdown("### 📊 Custeio Gerencial\n*Plano de contas e Centros de Custo.*")
+        st.markdown("### 💰 Rentabilidade\n*Cliente como Centro de Resultado.*")
+    with col2:
+        st.markdown("### 📜 Gestão de Contratos\n*SLAs e limites de escopo padronizados.*")
+        st.markdown("### 🚀 Comercial Enxuto\n*Crescimento por slots de capacidade.*")
+        st.markdown("### 📈 Indicadores\n*Gestão semanal auditável e acionável.*")
 
-elif etapa == 2:
-    st.markdown('<p class="pergunta">2. Se você pudesse ouvir o que o seu time diz no final do dia, qual seria o som predominante?</p>', unsafe_allow_html=True)
-    st.select_slider("Nível de ruído operacional:", options=["Silêncio Produtivo", "Conversas Ajustadas", "Murmúrios de Cansaço", "Gritos de Urgência"])
+elif passo == "3. Diagnóstico PNL":
+    st.markdown('<p class="titulo-sessao">Mapeamento Estratégico</p>', unsafe_allow_html=True)
+    st.write("Preencha as percepções dos sócios em tempo real durante a discussão:")
 
-elif etapa == 3:
-    st.markdown('<p class="pergunta">3. Qual é a sensação cinestésica (o peso) de fechar um novo contrato hoje sem saber a margem exata?</p>', unsafe_allow_html=True)
-    st.slider("Peso da incerteza (0 a 10):", 0, 10, 5)
+    # Armazenando respostas em variáveis para salvar depois
+    st.markdown('<p class="pergunta-texto">1. Como você vê a clareza da precificação atual?</p>', unsafe_allow_html=True)
+    percepcao_preço = st.select_slider("Nível de clareza:", options=["Caos", "Intuitivo", "Razoável", "Sólido"], key="q1")
 
-elif etapa == 4:
-    st.markdown('<p class="pergunta">4. Imagine que passamos 12 meses. Como você descreveria a cena de olhar um painel e ver o lucro real por cliente?</p>', unsafe_allow_html=True)
-    st.text_area("Descreva essa visão brevemente:")
+    st.markdown('<p class="pergunta-texto">2. Quais segmentos drenam mais energia do time hoje?</p>', unsafe_allow_html=True)
+    segmentos = st.multiselect("Selecione:", ["Simples", "Presumido", "MEI", "Avulsos", "Rural"], key="q2")
 
-elif etapa == 5:
-    st.markdown('<p class="pergunta">5. Qual desses segmentos hoje parece "sugar" mais a energia vital da operação?</p>', unsafe_allow_html=True)
-    st.multiselect("Selecione os drenos de energia:", ["Simples Nacional", "Lucro Presumido", "MEI", "Serviços Avulsos/Projetos"])
+    st.markdown('<p class="pergunta-texto">3. Qual o peso da incerteza ao fechar um contrato novo?</p>', unsafe_allow_html=True)
+    peso_incerteza = st.slider("Escala 0-10:", 0, 10, 5, key="q3")
 
-elif etapa == 6:
-    st.markdown('<p class="pergunta">6. Na sua percepção, o time está "correndo para onde" atualmente?</p>', unsafe_allow_html=True)
-    st.selectbox("Direção atual:", ["Em direção ao crescimento", "Em círculos para apagar fogo", "Apenas tentando sobreviver ao mês"])
+    st.markdown('<p class="pergunta-texto">4. Notas e Observações Adicionais:</p>', unsafe_allow_html=True)
+    notas = st.text_area("Registre pontos críticos discutidos:", key="q4")
 
-elif etapa == 7:
-    st.markdown('<p class="pergunta">7. Quando falamos em "Slots de Capacidade", qual a clareza você tem sobre quantos novos clientes cabem no escritório este mês?</p>', unsafe_allow_html=True)
-    st.select_slider("Nível de clareza:", ["Escuridão total", "Luz de vela", "Luz de escritório", "Sol do meio-dia"])
+elif passo == "4. Registro Final":
+    st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
+    st.write("Revise os pontos e clique no botão abaixo para enviar os dados para a planilha oficial.")
 
-elif etapa == 8:
-    st.markdown('<p class="pergunta">8. Se pudéssemos materializar a segurança jurídica dos seus contratos atuais, eles seriam como:</p>', unsafe_allow_html=True)
-    st.radio("Resistência dos contratos:", ["Um cofre de banco", "Uma porta de madeira", "Uma cortina de fumaça"])
+    if st.button("🚀 Salvar Diagnóstico na Planilha"):
+        try:
+            # Organizando os dados para a planilha
+            novo_registro = {
+                "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                "Cliente": "Escrita Contabilidade",
+                "Precificacao": st.session_state.q1,
+                "Segmentos_Criticos": ", ".join(st.session_state.q2),
+                "Peso_Incerteza": st.session_state.q3,
+                "Observacoes": st.session_state.q4
+            }
+            
+            # Lógica de salvar no Google Sheets
+            df_atual = conn.read(worksheet="Página1")
+            df_novo = pd.DataFrame([novo_registro])
+            df_final = pd.concat([df_atual, df_novo], ignore_index=True)
+            
+            conn.update(worksheet="Página1", data=df_final)
+            
+            st.balloons()
+            st.success("Dados registrados com sucesso! A Labor Business já pode iniciar a análise.")
+        except Exception as e:
+            st.error(f"Erro ao salvar: {e}. Verifique as Secrets do Streamlit.")
 
-elif etapa == 9:
-    st.markdown('<p class="pergunta">9. Qual é o principal indicador que, ao ser visualizado toda segunda-feira, traria paz de espírito para você?</p>', unsafe_allow_html=True)
-    st.text_input("Ex: Margem por segmento, Churn, Ticket médio...")
-
-elif etapa == 10:
-    st.markdown('<p class="pergunta">10. Você está pronto para iniciar essa jornada de 12 meses de construção de governança?</p>', unsafe_allow_html=True)
-    if st.button("Sim, vamos construir o Labor OS!"):
-        st.balloons()
-        st.success("Diagnóstico concluído! Estes dados serão a base da nossa primeira reunião.")
+# --- RODAPÉ ---
+st.divider()
+st.caption("Apresentação Gerada pela Labor Business - Governança & Resultados")
