@@ -69,27 +69,39 @@ elif passo == "3. Diagnóstico Estratégico":
 
     with t_fin:
         st.markdown('<p class="pergunta-texto">1. Maturidade da Precificação</p>', unsafe_allow_html=True)
-        st.select_slider("Percepção de lucro por contrato:", options=["Déficit", "Subestimado", "Equilibrado", "Lucrativo"], key="q1")
+        st.select_slider("Percepção de lucro por contrato:", 
+                         options=["Déficit", "Subestimado", "Equilibrado", "Lucrativo"], 
+                         key="q1")
         
         st.markdown('<p class="pergunta-texto">2. Recuperação de Margem</p>', unsafe_allow_html=True)
-        st.radio("Frequência de revisão de contratos:", ["Nunca", "Só sob pedido", "Anual", "Por demanda"], key="q_revisao")
+        st.radio("Frequência de revisão de contratos:", 
+                 ["Nunca", "Só sob pedido", "Anual", "Por demanda"], 
+                 key="q_revisao")
         
         st.markdown('<p class="pergunta-texto">3. Vazamentos de Receita</p>', unsafe_allow_html=True)
-        st.multiselect("Onde perdem dinheiro sem cobrar?", ["Reuniões extras", "Urgências", "Retrabalho", "Consultoria"], key="q_vazamento")
+        st.multiselect("Onde perdem dinheiro sem cobrar?", 
+                       ["Reuniões extras", "Urgências", "Retrabalho", "Consultoria"], 
+                       key="q_vazamento")
 
     with t_ope:
         st.markdown('<p class="pergunta-texto">4. Drenos de Energia (Segmentação)</p>', unsafe_allow_html=True)
-        st.multiselect("Segmentos críticos:", ["Simples", "Presumido", "MEI", "Rural"], key="q2")
+        st.multiselect("Segmentos críticos:", 
+                       ["Simples", "Presumido", "MEI", "Rural"], 
+                       key="q2")
         
         st.markdown('<p class="pergunta-texto">5. Sobrecarga do Time (0-10)</p>', unsafe_allow_html=True)
         st.slider("Nível de estresse:", 0, 10, 7, key="q3")
         
         st.markdown('<p class="pergunta-texto">6. O Gargalo Real</p>', unsafe_allow_html=True)
-        st.selectbox("Onde quebraria primeiro?", ["Atendimento", "Fiscal", "Contábil", "DP"], key="q_quebra")
+        st.selectbox("Onde quebraria primeiro?", 
+                     ["Atendimento", "Fiscal", "Contábil", "DP"], 
+                     key="q_quebra")
 
     with t_com:
         st.markdown('<p class="pergunta-texto">7. Filtro de Entrada</p>', unsafe_allow_html=True)
-        st.radio("Critério de aceite:", ["Tudo", "Básico", "Por Segmento", "Rigoroso"], key="q_filtro")
+        st.radio("Critério de aceite:", 
+                 ["Tudo", "Básico", "Por Segmento", "Rigoroso"], 
+                 key="q_filtro")
         
         st.markdown('<p class="pergunta-texto">8. Slots de Capacidade</p>', unsafe_allow_html=True)
         st.number_input("Novos contratos/mês com qualidade:", min_value=0, value=5, key="q7")
@@ -103,53 +115,50 @@ elif passo == "3. Diagnóstico Estratégico":
 
 elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
-    st.write("Verifique se as informações foram coletadas e clique abaixo para salvar.")
+    st.write("Verifique os campos e salve o diagnóstico oficial.")
 
     if st.button("🚀 Salvar Diagnóstico Oficial"):
         try:
-            # Captura segura dos dados do estado da sessão
-            vazamentos = ", ".join(st.session_state.get('q_vazamento', []))
-            segmentos = ", ".join(st.session_state.get('q2', []))
+            # Processamento seguro de listas vazias
+            vazamentos_val = ", ".join(st.session_state.get('q_vazamento', []))
+            segmentos_val = ", ".join(st.session_state.get('q2', []))
             
-            # Montagem do dicionário para a planilha
+            # Captura garantida dos dados do session_state
             novo_registro = {
                 "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
                 "Cliente": "Escrita Contabilidade",
                 "Precificacao": st.session_state.get('q1', 'Não informado'),
                 "Revisao_Contratos": st.session_state.get('q_revisao', 'Não informado'),
-                "Vazamentos": vazamentos if vazamentos else 'Nenhum',
-                "Segmentos_Criticos": segmentos if segmentos else 'Nenhum',
+                "Vazamentos": vazamentos_val if vazamentos_val else 'Nenhum',
+                "Segmentos_Criticos": segmentos_val if segmentos_val else 'Nenhum',
                 "Nivel_Estresse": st.session_state.get('q3', 0),
                 "Gargalo_Quebra": st.session_state.get('q_quebra', 'Não informado'),
                 "Filtro_Comercial": st.session_state.get('q_filtro', 'Não informado'),
                 "Slots": st.session_state.get('q7', 0),
-                "Barreiras": st.session_state.get('q_barreiras', 'Nenhum'),
-                "Prioridade_30_Dias": st.session_state.get('q4', 'Nenhum')
+                "Barreiras": st.session_state.get('q_barreiras', 'Nenhum') if st.session_state.get('q_barreiras') else 'Nenhum',
+                "Prioridade_30_Dias": st.session_state.get('q4', 'Nenhum') if st.session_state.get('q4') else 'Nenhum'
             }
             
-            # Lógica de salvamento
+            # Sincronização com a planilha
             df_atual = conn.read(worksheet="Página1")
             df_novo = pd.DataFrame([novo_registro])
             
-            # Sincroniza as colunas exatamente como estão na planilha
+            # Reordena colunas para bater com o Google Sheets
             df_novo = df_novo.reindex(columns=df_atual.columns)
             
             df_final = pd.concat([df_atual, df_novo], ignore_index=True)
             conn.update(worksheet="Página1", data=df_final)
             
             st.balloons()
-            st.success("Dados registrados com sucesso! Você já pode conferir sua planilha.")
+            st.success("Dados salvos! Verifique sua planilha agora.")
         except Exception as e:
             st.error(f"Erro ao salvar: {e}")
 
 elif passo == "5. Dados e Documentos":
     st.markdown('<p class="titulo-sessao">Solicitação de Dados - Mês 1</p>', unsafe_allow_html=True)
-    st.write("Para iniciarmos o Plano Light, precisamos dos seguintes itens:")
-    
-    st.markdown('<div class="doc-check">📁 <strong>Dados Financeiros:</strong><br>- Relatório de faturamento (12 meses).<br>- Balancete ou Plano de Contas.<br>- Lista de custos fixos.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="doc-check">📄 <strong>Dados Comerciais:</strong><br>- Modelo de contrato e proposta comercial.<br>- Tabela de preços vigente.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="doc-check">⚙️ <strong>Dados Operacionais:</strong><br>- Lista de colaboradores por setor.<br>- Volume de lançamentos/notas por segmento.</div>', unsafe_allow_html=True)
-    st.warning("⚠️ Enviar em até 48h após esta reunião.")
+    st.markdown('<div class="doc-check">📁 <strong>Financeiro:</strong> Relatório 12 meses, Balancete e Custos Fixos.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="doc-check">📄 <strong>Comercial:</strong> Contratos, Propostas e Tabela de Preços.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="doc-check">⚙️ <strong>Operacional:</strong> Lista de time e volume de lançamentos.</div>', unsafe_allow_html=True)
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
