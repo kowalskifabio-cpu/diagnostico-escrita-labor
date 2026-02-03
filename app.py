@@ -13,13 +13,9 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 # --- ESTILO VISUAL LABOR BUSINESS ---
 st.markdown("""
     <style>
-    .main { background-color: #ffffff; }
     .titulo-sessao { color: #2c3e50; font-size: 32px; font-weight: bold; }
     .sub-sessao { color: #ff9900; font-size: 18px; font-weight: 500; }
-    .destaque-box { 
-        background-color: #f1f3f6; padding: 20px; border-radius: 15px; 
-        border-left: 8px solid #ff9900; margin-bottom: 20px; 
-    }
+    .destaque-box { background-color: #f1f3f6; padding: 20px; border-radius: 15px; border-left: 8px solid #ff9900; margin-bottom: 20px; }
     .pergunta-texto { color: #2c3e50; font-weight: bold; font-size: 18px; margin-top: 15px; }
     .doc-check { background-color: #fff4e5; padding: 15px; border-radius: 10px; border: 1px solid #ff9900; margin-bottom: 10px; }
     </style>
@@ -39,7 +35,7 @@ with st.sidebar:
     st.divider()
     st.caption("Plano Light - 12 Meses")
 
-# --- CONTEÚDO ---
+# --- LÓGICA DE CONTEÚDO ---
 
 if passo == "1. Abertura":
     st.markdown('<p class="titulo-sessao">Kick-off: Plano Labor OS</p>', unsafe_allow_html=True)
@@ -68,78 +64,92 @@ elif passo == "2. Os 6 Pilares":
 
 elif passo == "3. Diagnóstico Estratégico":
     st.markdown('<p class="titulo-sessao">Mapeamento de Percepções e Gargalos</p>', unsafe_allow_html=True)
-    tab_fin, tab_ope, tab_com, tab_fut = st.tabs(["💰 Saúde Financeira", "⚙️ Eficiência Operacional", "🚀 Comercial e Vendas", "🔮 Visão de Futuro"])
+    
+    t_fin, t_ope, t_com, t_fut = st.tabs(["💰 Saúde Financeira", "⚙️ Eficiência Operacional", "🚀 Comercial e Vendas", "🔮 Visão de Futuro"])
 
-    with tab_fin:
+    with t_fin:
         st.markdown('<p class="pergunta-texto">1. Maturidade da Precificação</p>', unsafe_allow_html=True)
         st.select_slider("Percepção de lucro por contrato:", options=["Déficit", "Subestimado", "Equilibrado", "Lucrativo"], key="q1")
+        
         st.markdown('<p class="pergunta-texto">2. Recuperação de Margem</p>', unsafe_allow_html=True)
         st.radio("Frequência de revisão de contratos:", ["Nunca", "Só sob pedido", "Anual", "Por demanda"], key="q_revisao")
+        
         st.markdown('<p class="pergunta-texto">3. Vazamentos de Receita</p>', unsafe_allow_html=True)
         st.multiselect("Onde perdem dinheiro sem cobrar?", ["Reuniões extras", "Urgências", "Retrabalho", "Consultoria"], key="q_vazamento")
 
-    with tab_ope:
+    with t_ope:
         st.markdown('<p class="pergunta-texto">4. Drenos de Energia (Segmentação)</p>', unsafe_allow_html=True)
         st.multiselect("Segmentos críticos:", ["Simples", "Presumido", "MEI", "Rural"], key="q2")
+        
         st.markdown('<p class="pergunta-texto">5. Sobrecarga do Time (0-10)</p>', unsafe_allow_html=True)
         st.slider("Nível de estresse:", 0, 10, 7, key="q3")
+        
         st.markdown('<p class="pergunta-texto">6. O Gargalo Real</p>', unsafe_allow_html=True)
         st.selectbox("Onde quebraria primeiro?", ["Atendimento", "Fiscal", "Contábil", "DP"], key="q_quebra")
 
-    with tab_com:
+    with t_com:
         st.markdown('<p class="pergunta-texto">7. Filtro de Entrada</p>', unsafe_allow_html=True)
         st.radio("Critério de aceite:", ["Tudo", "Básico", "Por Segmento", "Rigoroso"], key="q_filtro")
+        
         st.markdown('<p class="pergunta-texto">8. Slots de Capacidade</p>', unsafe_allow_html=True)
         st.number_input("Novos contratos/mês com qualidade:", min_value=0, value=5, key="q7")
 
-    with tab_fut:
+    with t_fut:
         st.markdown('<p class="pergunta-texto">9. Obstáculos ao Projeto</p>', unsafe_allow_html=True)
         st.text_area("O que pode impedir o sucesso?", key="q_barreiras")
+        
         st.markdown('<p class="pergunta-texto">10. Prioridade Máxima</p>', unsafe_allow_html=True)
         st.text_area("O que resolver nos próximos 30 dias?", key="q4")
 
 elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
-    if st.button("🚀 Salvar Diagnóstico"):
+    st.write("Verifique se as informações foram coletadas e clique abaixo para salvar.")
+
+    if st.button("🚀 Salvar Diagnóstico Oficial"):
         try:
-            vaz_lista = st.session_state.get('q_vazamento', [])
-            seg_lista = st.session_state.get('q2', [])
+            # Captura segura dos dados do estado da sessão
+            vazamentos = ", ".join(st.session_state.get('q_vazamento', []))
+            segmentos = ", ".join(st.session_state.get('q2', []))
             
+            # Montagem do dicionário para a planilha
             novo_registro = {
                 "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
                 "Cliente": "Escrita Contabilidade",
-                "Precificacao": str(st.session_state.get('q1', '')),
-                "Revisao_Contratos": str(st.session_state.get('q_revisao', '')),
-                "Vazamentos": ", ".join(vaz_lista) if vaz_lista else "",
-                "Segmentos_Criticos": ", ".join(seg_lista) if seg_lista else "",
-                "Nivel_Estresse": int(st.session_state.get('q3', 0)),
-                "Gargalo_Quebra": str(st.session_state.get('q_quebra', '')),
-                "Filtro_Comercial": str(st.session_state.get('q_filtro', '')),
-                "Slots": int(st.session_state.get('q7', 0)),
-                "Barreiras": str(st.session_state.get('q_barreiras', '')),
-                "Prioridade_30_Dias": str(st.session_state.get('q4', ''))
+                "Precificacao": st.session_state.get('q1', 'Não informado'),
+                "Revisao_Contratos": st.session_state.get('q_revisao', 'Não informado'),
+                "Vazamentos": vazamentos if vazamentos else 'Nenhum',
+                "Segmentos_Criticos": segmentos if segmentos else 'Nenhum',
+                "Nivel_Estresse": st.session_state.get('q3', 0),
+                "Gargalo_Quebra": st.session_state.get('q_quebra', 'Não informado'),
+                "Filtro_Comercial": st.session_state.get('q_filtro', 'Não informado'),
+                "Slots": st.session_state.get('q7', 0),
+                "Barreiras": st.session_state.get('q_barreiras', 'Nenhum'),
+                "Prioridade_30_Dias": st.session_state.get('q4', 'Nenhum')
             }
             
+            # Lógica de salvamento
             df_atual = conn.read(worksheet="Página1")
             df_novo = pd.DataFrame([novo_registro])
-            df_novo = df_novo.reindex(columns=df_atual.columns)
-            df_final = pd.concat([df_atual, df_novo], ignore_index=True)
             
+            # Sincroniza as colunas exatamente como estão na planilha
+            df_novo = df_novo.reindex(columns=df_atual.columns)
+            
+            df_final = pd.concat([df_atual, df_novo], ignore_index=True)
             conn.update(worksheet="Página1", data=df_final)
+            
             st.balloons()
-            st.success("Dados registrados com sucesso!")
+            st.success("Dados registrados com sucesso! Você já pode conferir sua planilha.")
         except Exception as e:
-            st.error(f"Erro técnico: {e}")
+            st.error(f"Erro ao salvar: {e}")
 
 elif passo == "5. Dados e Documentos":
     st.markdown('<p class="titulo-sessao">Solicitação de Dados - Mês 1</p>', unsafe_allow_html=True)
-    st.write("Para iniciarmos a arquitetura da precificação e do plano de contas, precisamos dos seguintes itens:")
+    st.write("Para iniciarmos o Plano Light, precisamos dos seguintes itens:")
     
-    st.markdown('<div class="doc-check">📁 <strong>Dados Financeiros:</strong><br>- Relatório de faturamento dos últimos 12 meses por cliente.<br>- Balancete ou Plano de Contas atual.<br>- Lista de custos fixos mensais.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="doc-check">📄 <strong>Dados Comerciais:</strong><br>- Modelo de contrato atual.<br>- Modelo de proposta comercial.<br>- Tabela de preços vigente.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="doc-check">⚙️ <strong>Dados Operacionais:</strong><br>- Lista de colaboradores por setor.<br>- Volume estimado de lançamentos/notas por segmento.</div>', unsafe_allow_html=True)
-
-    st.warning("⚠️ **Próximo Passo:** Enviar estes dados em até 48h após esta reunião.")
+    st.markdown('<div class="doc-check">📁 <strong>Dados Financeiros:</strong><br>- Relatório de faturamento (12 meses).<br>- Balancete ou Plano de Contas.<br>- Lista de custos fixos.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="doc-check">📄 <strong>Dados Comerciais:</strong><br>- Modelo de contrato e proposta comercial.<br>- Tabela de preços vigente.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="doc-check">⚙️ <strong>Dados Operacionais:</strong><br>- Lista de colaboradores por setor.<br>- Volume de lançamentos/notas por segmento.</div>', unsafe_allow_html=True)
+    st.warning("⚠️ Enviar em até 48h após esta reunião.")
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
