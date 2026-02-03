@@ -31,7 +31,7 @@ with st.sidebar:
     st.markdown("### 🕒 Roteiro da Reunião")
     passo = option_menu(
         menu_title=None,
-        options=["1. Abertura", "2. Os 6 Pilares", "3. Diagnóstico PNL", "4. Registro Final"],
+        options=["1. Abertura", "2. Os 6 Pilares", "3. Diagnóstico", "4. Registro Final"],
         icons=["play-fill", "diagram-3", "brain", "save"],
         menu_icon="cast", default_index=0,
         styles={"nav-link-selected": {"background-color": "#ff9900"}}
