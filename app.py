@@ -63,23 +63,34 @@ elif passo == "2. Os 6 Pilares":
         st.markdown("### 📈 Indicadores\n*Gestão semanal auditável e acionável.*")
 
 elif passo == "3. Diagnóstico Estratégico":
-    st.markdown('<p class="titulo-sessao">Mapeamento de Percepções</p>', unsafe_allow_html=True)
-    st.markdown('<p class="sub-sessao">Preencha durante a discussão com os sócios</p>', unsafe_allow_html=True)
+    st.markdown('<p class="titulo-sessao">Mapeamento de Percepções e Gargalos</p>', unsafe_allow_html=True)
+    
+    # DIVISÃO POR ÁREAS DE INVESTIGAÇÃO
+    aba_preço, aba_operacao, aba_capacidade = st.tabs(["💰 Precificação", "⚙️ Operação", "🚀 Capacidade"])
 
-    col_form, col_info = st.columns([2, 1])
-
-    with col_form:
-        st.markdown('<p class="pergunta-texto">1. Como você vê a clareza da precificação atual?</p>', unsafe_allow_html=True)
+    with aba_preço:
+        st.markdown('<p class="pergunta-texto">Como você vê a clareza da precificação atual?</p>', unsafe_allow_html=True)
         st.select_slider("Nível de clareza:", options=["Caos", "Intuitivo", "Razoável", "Sólido"], key="q1")
+        
+        st.markdown('<p class="pergunta-texto">Qual o critério atual para dar desconto em novas propostas?</p>', unsafe_allow_html=True)
+        st.text_area("Notas sobre política de descontos:", key="q5", placeholder="Ex: Intuição do sócio, pressão do cliente...")
 
-        st.markdown('<p class="pergunta-texto">2. Quais segmentos drenam mais energia do time hoje?</p>', unsafe_allow_html=True)
-        st.multiselect("Selecione os segmentos críticos:", ["Simples", "Presumido", "MEI", "Avulsos", "Rural"], key="q2")
+    with aba_operacao:
+        st.markdown('<p class="pergunta-texto">Quais segmentos drenam mais energia do time hoje?</p>', unsafe_allow_html=True)
+        st.multiselect("Selecione os drenos de energia:", ["Simples", "Presumido", "MEI", "Avulsos", "Rural", "Terceiro Setor"], key="q2")
+        
+        st.markdown('<p class="pergunta-texto">Qual o nível de ruído/estresse operacional (0-10)?</p>', unsafe_allow_html=True)
+        st.slider("Intensidade:", 0, 10, 5, key="q3")
+        
+        st.markdown('<p class="pergunta-texto">Onde acontece o maior volume de retrabalho?</p>', unsafe_allow_html=True)
+        st.radio("Principal causa:", ["Falta de documento do cliente", "Erro de digitação interno", "Mudança na legislação", "Falta de integração"], key="q6")
 
-        st.markdown('<p class="pergunta-texto">3. Qual o peso da incerteza ao fechar um contrato novo?</p>', unsafe_allow_html=True)
-        st.slider("Escala 0-10:", 0, 10, 5, key="q3")
-
-        st.markdown('<p class="pergunta-texto">4. Notas e Observações Adicionais:</p>', unsafe_allow_html=True)
-        st.text_area("Registre aqui os pontos fundamentais da conversa:", key="q4", height=150)
+    with aba_capacidade:
+        st.markdown('<p class="pergunta-texto">Slots de Capacidade: Quantos novos clientes cabem hoje?</p>', unsafe_allow_html=True)
+        st.number_input("Número de novos contratos/mês sem perda de qualidade:", min_value=0, max_value=50, value=5, key="q7")
+        
+        st.markdown('<p class="pergunta-texto">Visão de Futuro: Qual processo, se resolvido hoje, traria o maior alívio?</p>', unsafe_allow_html=True)
+        st.text_area("Notas e Observações Estratégicas:", key="q4", height=150)
 
 elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
