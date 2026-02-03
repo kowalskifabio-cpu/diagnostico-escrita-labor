@@ -118,9 +118,37 @@ elif passo == "3. Diagnóstico e Registro":
 
 elif passo == "4. Dados e Documentos":
     st.markdown('<p class="titulo-sessao">Solicitação de Dados - Mês 1</p>', unsafe_allow_html=True)
-    st.markdown('<div class="doc-check">📁 <strong>Financeiro:</strong> Relatório 12 meses, Balancete e Custos Fixos.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="doc-check">📄 <strong>Comercial:</strong> Contratos, Propostas e Tabela de Preços.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="doc-check">⚙️ <strong>Operacional:</strong> Lista de time e volume de lançamentos.</div>', unsafe_allow_html=True)
+    st.write("Para iniciarmos a arquitetura da precificação e a nova leitura gerencial, precisamos dos seguintes itens:")
+    
+    with st.container():
+        st.markdown("""
+            <div class="doc-check">
+                📁 <strong>Dados Financeiros e Estruturais:</strong><br>
+                - Relatório de faturamento dos últimos 12 meses por cliente.<br>
+                - <b>Plano de Contas atual</b> (mesmo que esteja em rascunho ou incompleto).<br>
+                - <b>Estrutura de Centros de Custos</b> utilizada hoje (ou como você separa as despesas).<br>
+                - Lista de custos fixos mensais (Aluguel, Softwares, Folha de Pagamento).
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div class="doc-check">
+                📄 <strong>Dados Comerciais:</strong><br>
+                - Modelo de contrato atual utilizado com os clientes.<br>
+                - Modelo de proposta comercial enviada para novos leads.<br>
+                - Tabela de preços vigente (se houver uma padronizada).
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div class="doc-check">
+                ⚙️ <strong>Dados Operacionais:</strong><br>
+                - Lista de colaboradores dividida por setor (Fiscal, Contábil, DP, Atendimento).<br>
+                - Estimativa de volume de lançamentos ou notas por segmento (amostragem para cálculo de capacidade).
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.warning("⚠️ **Próximo Passo:** Organize esses arquivos em uma pasta no Drive ou envie por e-mail em até 48h após esta reunião.")
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
