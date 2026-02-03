@@ -45,7 +45,7 @@ if passo == "1. Abertura":
     st.markdown('<p class="titulo-sessao">Kick-off: Plano Labor OS</p>', unsafe_allow_html=True)
     st.image("tela inicial.png", use_container_width=True)
     
-    st.markdown('<div class="pnl-box"><strong>Ponte ao Futuro (PNL):</strong><br>Imagine a Escrita Contabilidade daqui a 12 meses. O crescimento é previsível, a precificação é automática e você sente total alívio ao olhar os indicadores de lucro real. Como é essa sensação?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="pnl-box"><strong>Ponte ao Futuro:</strong><br>Imagine a Escrita Contabilidade daqui a 12 meses. O crescimento é previsível, a precificação é automática e você sente total alívio ao olhar os indicadores de lucro real. Como é essa sensação?</div>', unsafe_allow_html=True)
     
     st.write("### 🎯 Objetivo do Dia")
     st.write("Estabelecer a governança inicial, diagnosticar gargalos e arquitetar o Mês 1.")
