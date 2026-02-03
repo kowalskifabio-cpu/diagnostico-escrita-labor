@@ -101,33 +101,81 @@ elif passo == "2. Os 6 Pilares":
             """)
 elif passo == "3. Diagnóstico Estratégico":
     st.markdown('<p class="titulo-sessao">Mapeamento de Percepções e Gargalos</p>', unsafe_allow_html=True)
-    
-    # DIVISÃO POR ÁREAS DE INVESTIGAÇÃO
-    aba_preço, aba_operacao, aba_capacidade = st.tabs(["💰 Precificação", "⚙️ Operação", "🚀 Capacidade"])
+    st.markdown('<p class="sub-sessao">Fase de Investigação Profunda (40-50 min)</p>', unsafe_allow_html=True)
 
-    with aba_preço:
-        st.markdown('<p class="pergunta-texto">Como você vê a clareza da precificação atual?</p>', unsafe_allow_html=True)
-        st.select_slider("Nível de clareza:", options=["Caos", "Intuitivo", "Razoável", "Sólido"], key="q1")
-        
-        st.markdown('<p class="pergunta-texto">Qual o critério atual para dar desconto em novas propostas?</p>', unsafe_allow_html=True)
-        st.text_area("Notas sobre política de descontos:", key="q5", placeholder="Ex: Intuição do sócio, pressão do cliente...")
+    # Organização por Abas para dar densidade ao conteúdo
+    tab_financeiro, tab_operacional, tab_comercial, tab_futuro = st.tabs([
+        "💰 Saúde Financeira", "⚙️ Eficiência Operacional", "🚀 Comercial e Vendas", "🔮 Visão de Futuro"
+    ])
 
-    with aba_operacao:
-        st.markdown('<p class="pergunta-texto">Quais segmentos drenam mais energia do time hoje?</p>', unsafe_allow_html=True)
-        st.multiselect("Selecione os drenos de energia:", ["Simples", "Presumido", "MEI", "Avulsos", "Rural", "Terceiro Setor"], key="q2")
+    with tab_financeiro:
+        st.markdown('<p class="pergunta-texto">1. Maturidade da Precificação</p>', unsafe_allow_html=True)
+        st.select_slider(
+            "Como os sócios enxergam a precisão do preço cobrado hoje vs. o trabalho entregue?",
+            options=["Déficit (Pagamos para trabalhar)", "Subestimado", "Equilibrado", "Lucrativo"],
+            key="q1"
+        )
         
-        st.markdown('<p class="pergunta-texto">Qual o nível de ruído/estresse operacional (0-10)?</p>', unsafe_allow_html=True)
-        st.slider("Intensidade:", 0, 10, 5, key="q3")
+        st.markdown('<p class="pergunta-texto">2. Recuperação de Margem</p>', unsafe_allow_html=True)
+        st.radio(
+            "Qual a frequência de revisão de contratos antigos na base de 800 clientes?",
+            ["Nunca revisamos", "Apenas quando o cliente pede", "Anualmente (IPCA/IGPM)", "Baseado no aumento de demanda do cliente"],
+            key="q_revisao"
+        )
         
-        st.markdown('<p class="pergunta-texto">Onde acontece o maior volume de retrabalho?</p>', unsafe_allow_html=True)
-        st.radio("Principal causa:", ["Falta de documento do cliente", "Erro de digitação interno", "Mudança na legislação", "Falta de integração"], key="q6")
+        st.markdown('<p class="pergunta-texto">3. Vazamentos de Receita</p>', unsafe_allow_html=True)
+        st.multiselect(
+            "Onde vocês sentem que 'perdem' dinheiro sem cobrar?",
+            ["Reuniões extras", "Pedidos de urgência", "Consultoria pontual", "Retrabalho por erro do cliente", "Parcelamentos de impostos"],
+            key="q_vazamento"
+        )
 
-    with aba_capacidade:
-        st.markdown('<p class="pergunta-texto">Slots de Capacidade: Quantos novos clientes cabem hoje?</p>', unsafe_allow_html=True)
-        st.number_input("Número de novos contratos/mês sem perda de qualidade:", min_value=0, max_value=50, value=5, key="q7")
-        
-        st.markdown('<p class="pergunta-texto">Visão de Futuro: Qual processo, se resolvido hoje, traria o maior alívio?</p>', unsafe_allow_html=True)
-        st.text_area("Notas e Observações Estratégicas:", key="q4", height=150)
+    with tab_operacao:
+        st.markdown('<p class="pergunta-texto">4. Drenos de Energia (Segmentação)</p>', unsafe_allow_html=True)
+        st.multiselect(
+            "Selecione os perfis de clientes que mais geram ruído ou retrabalho:",
+            ["Simples Nacional (Serviços)", "Simples Nacional (Comércio)", "Lucro Presumido", "MEI", "Associações/Terceiro Setor", "Rural"],
+            key="q2"
+        )
+
+        st.markdown('<p class="pergunta-texto">5. Nível de Estresse da Equipe (0-10)</p>', unsafe_allow_html=True)
+        st.slider("Qual a percepção de sobrecarga do time atual?", 0, 10, 7, key="q3")
+
+        st.markdown('<p class="pergunta-texto">6. O Gargalo Real</p>', unsafe_allow_html=True)
+        st.selectbox(
+            "Se o volume de clientes dobrasse hoje, onde o escritório quebraria primeiro?",
+            ["Atendimento/Relacionamento", "Setor Fiscal", "Setor Contábil", "Departamento Pessoal", "Tecnologia/Sistemas"],
+            key="q_quebra"
+        )
+
+    with tab_comercial:
+        st.markdown('<p class="pergunta-texto">7. Filtro de Entrada</p>', unsafe_allow_html=True)
+        st.radio(
+            "Existe um critério de 'cliente ideal' (ICP) ou aceitam qualquer demanda que chega?",
+            ["Aceitamos tudo para crescer", "Temos alguns critérios básicos", "Filtramos por faturamento/segmento", "Filtro rigoroso de rentabilidade"],
+            key="q_filtro"
+        )
+
+        st.markdown('<p class="pergunta-texto">8. Slots de Capacidade</p>', unsafe_allow_html=True)
+        st.number_input(
+            "Quantos novos clientes o escritório consegue absorver por mês com excelência?",
+            min_value=0, max_value=100, value=5, key="q7"
+        )
+
+    with tab_futuro:
+        st.markdown('<p class="pergunta-texto">9. Obstáculos ao Projeto</p>', unsafe_allow_html=True)
+        st.text_area(
+            "O que pode impedir a implantação desse método nos próximos 12 meses?",
+            placeholder="Ex: Falta de tempo dos sócios, resistência da equipe, sistemas limitados...",
+            key="q_barreiras"
+        )
+
+        st.markdown('<p class="pergunta-texto">10. Prioridade Máxima</p>', unsafe_allow_html=True)
+        st.text_area(
+            "Se tivéssemos que resolver apenas UMA coisa nos próximos 30 dias, o que seria?",
+            key="q4",
+            height=100
+        )
 
 elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
