@@ -51,17 +51,54 @@ if passo == "1. Abertura":
 
 elif passo == "2. Os 6 Pilares":
     st.markdown('<p class="titulo-sessao">Estrutura de Governança (12 Meses)</p>', unsafe_allow_html=True)
+    st.write("Abaixo, detalhamos a fundação do projeto **Labor OS**. Cada pilar é essencial para que a Escrita cresça sem perder a rentabilidade.")
     
+    # Organizador em colunas com expansores para detalhamento
     col1, col2 = st.columns(2)
+    
     with col1:
-        st.markdown("### 🛒 Precificação\n*Método alinhado ao custo real e segmentação.*")
-        st.markdown("### 📊 Custeio Gerencial\n*Plano de contas e Centros de Custo.*")
-        st.markdown("### 💰 Rentabilidade\n*Cliente como Centro de Resultado.*")
-    with col2:
-        st.markdown("### 📜 Gestão de Contratos\n*SLAs e limites de escopo padronizados.*")
-        st.markdown("### 🚀 Comercial Enxuto\n*Crescimento por slots de capacidade.*")
-        st.markdown("### 📈 Indicadores\n*Gestão semanal auditável e acionável.*")
+        with st.expander("🛒 1. Estratégia de Precificação", expanded=True):
+            st.write("""
+            **O Problema:** Preço baseado em 'feeling' ou mercado, sem olhar o custo interno.
+            **A Solução:** Criar um Playbook de Precificação com base no *Preço Mínimo Sustentável*.
+            **Resultado:** Garantia de margem de lucro em cada novo contrato assinado.
+            """)
+        
+        with st.expander("📊 2. Custeio e Plano de Contas", expanded=True):
+            st.write("""
+            **O Problema:** Plano de contas contábil que não serve para tomada de decisão.
+            **A Solução:** Adequação para leitura gerencial e separação por centros de custo.
+            **Resultado:** Clareza sobre onde o escritório gasta e onde ele ganha dinheiro.
+            """)
+            
+        with st.expander("💰 3. Rentabilidade por Cliente", expanded=True):
+            st.write("""
+            **O Problema:** Não saber quais dos 800 clientes são rentáveis ou deficitários.
+            **A Solução:** Implementar a lógica de 'Cliente como Centro de Resultado'.
+            **Resultado:** Matriz de rentabilidade para decidir quem manter e quem reprecificar.
+            """)
 
+    with col2:
+        with st.expander("📜 4. Gestão de Contratos e SLAs", expanded=True):
+            st.write("""
+            **O Problema:** Clientes que demandam além do contratado sem pagar a mais.
+            **A Solução:** Padronização de contratos com limites de escopo e gatilhos de reajuste.
+            **Resultado:** Fim da informalidade e proteção da margem operacional.
+            """)
+
+        with st.expander("🚀 5. Comercial Enxuto e Capacidade", expanded=True):
+            st.write("""
+            **O Problema:** Vender sem saber se o time consegue entregar com qualidade.
+            **A Solução:** Funil de vendas controlado por 'Slots de Capacidade' mensais.
+            **Resultado:** Crescimento sustentável: entra o cliente certo no momento certo.
+            """)
+
+        with st.expander("📈 6. Indicadores e Rotina de Gestão", expanded=True):
+            st.write("""
+            **O Problema:** Dashboard 'enfeite' ou excesso de reuniões sem ação.
+            **A Solução:** Painel semanal com indicadores acionáveis (Ticket Médio, Churn, Margem).
+            **Resultado:** Governança ativa onde os sócios gerem o negócio, não o operacional.
+            """)
 elif passo == "3. Diagnóstico Estratégico":
     st.markdown('<p class="titulo-sessao">Mapeamento de Percepções e Gargalos</p>', unsafe_allow_html=True)
     
