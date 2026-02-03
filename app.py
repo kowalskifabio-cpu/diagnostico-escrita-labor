@@ -21,6 +21,7 @@ st.markdown("""
         border-left: 8px solid #ff9900; margin-bottom: 20px; 
     }
     .pergunta-texto { color: #2c3e50; font-weight: bold; font-size: 18px; margin-top: 15px; }
+    .doc-check { background-color: #fff4e5; padding: 15px; border-radius: 10px; border: 1px solid #ff9900; margin-bottom: 10px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -30,8 +31,8 @@ with st.sidebar:
     st.markdown("### 🕒 Roteiro da Reunião")
     passo = option_menu(
         menu_title=None,
-        options=["1. Abertura", "2. Os 6 Pilares", "3. Diagnóstico Estratégico", "4. Registro Final"],
-        icons=["play-fill", "diagram-3", "search", "save"],
+        options=["1. Abertura", "2. Os 6 Pilares", "3. Diagnóstico Estratégico", "4. Registro Final", "5. Dados e Documentos"],
+        icons=["play-fill", "diagram-3", "search", "save", "file-earmark-arrow-up"],
         menu_icon="cast", default_index=0,
         styles={"nav-link-selected": {"background-color": "#ff9900"}}
     )
@@ -103,10 +104,12 @@ elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
     if st.button("🚀 Salvar Diagnóstico na Planilha"):
         try:
+            # Capturando dados
             vazamentos = ", ".join(st.session_state.get('q_vazamento', []))
             segmentos = ", ".join(st.session_state.get('q2', []))
             
-            novo_registro = {
+            # Criando DataFrame do novo registro
+            novo_registro = pd.DataFrame([{
                 "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
                 "Cliente": "Escrita Contabilidade",
                 "Precificacao": st.session_state.get('q1', ''),
@@ -119,16 +122,30 @@ elif passo == "4. Registro Final":
                 "Slots": st.session_state.get('q7', 0),
                 "Barreiras": st.session_state.get('q_barreiras', ''),
                 "Prioridade_30_Dias": st.session_state.get('q4', '')
-            }
+            }])
             
-            df_atual = conn.read(worksheet="Página1")
-            df_novo = pd.DataFrame([novo_registro])
-            df_final = pd.concat([df_atual, df_novo], ignore_index=True)
-            conn.update(worksheet="Página1", data=df_final)
+            # Mudança estratégica: usando 'append' de forma implícita via create/update
+            existing_df = conn.read(worksheet="Página1")
+            updated_df = pd.concat([existing_df, novo_registro], ignore_index=True)
+            conn.update(worksheet="Página1", data=updated_df)
+            
             st.balloons()
             st.success("Dados registrados com sucesso!")
         except Exception as e:
-            st.error(f"Erro: {e}")
+            st.error(f"Erro ao salvar: {e}")
+
+elif passo == "5. Dados e Documentos":
+    st.markdown('<p class="titulo-sessao">Solicitação de Dados - Mês 1</p>', unsafe_allow_html=True)
+    st.write("Para iniciarmos a arquitetura da precificação e do plano de contas, precisamos dos seguintes itens:")
+    
+    with st.container():
+        st.markdown('<div class="doc-check">📁 <strong>Dados Financeiros:</strong><br>- Relatório de faturamento dos últimos 12 meses por cliente.<br>- Balancete ou Plano de Contas atual (mesmo que incompleto).<br>- Lista de custos fixos mensais (Aluguel, Software, Folha).</div>', unsafe_allow_html=True)
+        
+        st.markdown('<div class="doc-check">📄 <strong>Dados Comerciais:</strong><br>- Modelo de contrato atual utilizado.<br>- Modelo de proposta comercial enviada para novos clientes.<br>- Tabela de preços vigente (se houver).</div>', unsafe_allow_html=True)
+        
+        st.markdown('<div class="doc-check">⚙️ <strong>Dados Operacionais:</strong><br>- Lista de colaboradores por setor.<br>- Estimativa de "Volume de Notas/Lançamentos" por segmento (amostragem).</div>', unsafe_allow_html=True)
+
+    st.warning("⚠️ **Próximo Passo:** Enviar estes dados via E-mail ou Drive em até 48h após esta reunião.")
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
