@@ -102,37 +102,45 @@ elif passo == "3. Diagnóstico Estratégico":
 
 elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
-    if st.button("🚀 Salvar Diagnóstico na Planilha"):
+    st.write("Clique abaixo para salvar o diagnóstico oficial na planilha do Google.")
+
+    if st.button("🚀 Salvar Diagnóstico"):
         try:
-            # Capturando dados
-            vazamentos = ", ".join(st.session_state.get('q_vazamento', []))
-            segmentos = ", ".join(st.session_state.get('q2', []))
+            # Capturando e limpando os dados das multiselects
+            vazamentos_lista = st.session_state.get('q_vazamento', [])
+            segmentos_lista = st.session_state.get('q2', [])
             
-            # Criando DataFrame do novo registro
-            novo_registro = pd.DataFrame([{
+            # Criando o dicionário EXATAMENTE com os nomes da sua planilha
+            novo_registro = {
                 "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
                 "Cliente": "Escrita Contabilidade",
-                "Precificacao": st.session_state.get('q1', ''),
-                "Revisao_Contratos": st.session_state.get('q_revisao', ''),
-                "Vazamentos": vazamentos,
-                "Segmentos_Criticos": segmentos,
-                "Nivel_Estresse": st.session_state.get('q3', 0),
-                "Gargalo_Quebra": st.session_state.get('q_quebra', ''),
-                "Filtro_Comercial": st.session_state.get('q_filtro', ''),
-                "Slots": st.session_state.get('q7', 0),
-                "Barreiras": st.session_state.get('q_barreiras', ''),
-                "Prioridade_30_Dias": st.session_state.get('q4', '')
-            }])
+                "Precificacao": str(st.session_state.get('q1', '')),
+                "Revisao_Contratos": str(st.session_state.get('q_revisao', '')),
+                "Vazamentos": ", ".join(vazamentos_lista) if vazamentos_lista else "",
+                "Segmentos_Criticos": ", ".join(segmentos_lista) if segmentos_lista else "",
+                "Nivel_Estresse": int(st.session_state.get('q3', 0)),
+                "Gargalo_Quebra": str(st.session_state.get('q_quebra', '')),
+                "Filtro_Comercial": str(st.session_state.get('q_filtro', '')),
+                "Slots": int(st.session_state.get('q7', 0)),
+                "Barreiras": str(st.session_state.get('q_barreiras', '')),
+                "Prioridade_30_Dias": str(st.session_state.get('q4', ''))
+            }
             
-            # Mudança estratégica: usando 'append' de forma implícita via create/update
-            existing_df = conn.read(worksheet="Página1")
-            updated_df = pd.concat([existing_df, novo_registro], ignore_index=True)
-            conn.update(worksheet="Página1", data=updated_df)
+            # Lógica de atualização direta
+            df_atual = conn.read(worksheet="Página1")
+            df_novo = pd.DataFrame([novo_registro])
+            
+            # Forçamos o DataFrame novo a ter as mesmas colunas do atual para evitar erro de concatenação
+            df_novo = df_novo.reindex(columns=df_atual.columns)
+            
+            df_final = pd.concat([df_atual, df_novo], ignore_index=True)
+            conn.update(worksheet="Página1", data=df_final)
             
             st.balloons()
-            st.success("Dados registrados com sucesso!")
+            st.success("Dados registrados com sucesso na planilha!")
         except Exception as e:
-            st.error(f"Erro ao salvar: {e}")
+            st.error(f"Erro técnico: {e}")
+            st.info("Dica: Verifique se a Coluna F na planilha termina com 's' (Segmentos_Criticos).")
 
 elif passo == "5. Dados e Documentos":
     st.markdown('<p class="titulo-sessao">Solicitação de Dados - Mês 1</p>', unsafe_allow_html=True)
