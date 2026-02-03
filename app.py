@@ -24,7 +24,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- NAVEGAÇÃO LATERAL (ROTEIRO 90 MIN) ---
+# --- NAVEGAÇÃO LATERAL ---
 with st.sidebar:
     st.image("tela inicial.png", use_container_width=True)
     st.markdown("### 🕒 Roteiro da Reunião")
@@ -38,42 +38,35 @@ with st.sidebar:
     st.divider()
     st.caption("Plano Light - 12 Meses")
 
-# --- CONTEÚDO DAS ETAPAS ---
+# --- CONTEÚDO ---
 
 if passo == "1. Abertura":
     st.markdown('<p class="titulo-sessao">Kick-off: Plano Labor OS</p>', unsafe_allow_html=True)
     st.image("tela inicial.png", use_container_width=True)
-    
-    st.markdown('<div class="destaque-box"><strong>Visão de Futuro:</strong><br>Imagine a Escrita Contabilidade daqui a 12 meses. O crescimento é previsível, a precificação é automática e você sente total alívio ao olhar os indicadores de lucro real. Como é essa sensação?</div>', unsafe_allow_html=True)
-    
+    st.markdown('<div class="destaque-box"><strong>Visão de Futuro:</strong><br>Imagine a Escrita Contabilidade daqui a 12 meses. O crescimento é previsível e você sente total alívio ao olhar os indicadores de lucro real. Como é essa sensação?</div>', unsafe_allow_html=True)
     st.write("### 🎯 Objetivo do Dia")
     st.write("Estabelecer a governança inicial, diagnosticar gargalos e arquitetar as prioridades do Mês 1.")
 
 elif passo == "2. Os 6 Pilares":
     st.markdown('<p class="titulo-sessao">Estrutura de Governança (12 Meses)</p>', unsafe_allow_html=True)
-    st.write("Abaixo, detalhamos a fundação do projeto **Labor OS**. Cada pilar é essencial para que a Escrita cresça sem perder a rentabilidade.")
-    
     col1, col2 = st.columns(2)
     with col1:
         with st.expander("🛒 1. Estratégia de Precificação", expanded=True):
-            st.write("**Problema:** Preço sem olhar o custo interno. | **Solução:** Playbook de Precificação. | **Resultado:** Margem garantida.")
+            st.write("Criar um Playbook de Precificação baseado no custo real. Resultado: Margem garantida.")
         with st.expander("📊 2. Custeio e Plano de Contas", expanded=True):
-            st.write("**Problema:** Plano de contas sem leitura gerencial. | **Solução:** Centros de custo. | **Resultado:** Clareza financeira.")
+            st.write("Leitura gerencial e centros de custo. Resultado: Clareza financeira total.")
         with st.expander("💰 3. Rentabilidade por Cliente", expanded=True):
-            st.write("**Problema:** Não saber quem dá lucro. | **Solução:** Cliente como Centro de Resultado. | **Resultado:** Matriz de rentabilidade.")
-
+            st.write("Identificar quem dá lucro. Resultado: Matriz para decisões de reprecificação.")
     with col2:
         with st.expander("📜 4. Gestão de Contratos e SLAs", expanded=True):
-            st.write("**Problema:** Clientes demandando além do contratado. | **Solução:** Gatilhos de reajuste. | **Resultado:** Fim da informalidade.")
+            st.write("Padronização com gatilhos de reajuste. Resultado: Fim da informalidade.")
         with st.expander("🚀 5. Comercial Enxuto e Capacidade", expanded=True):
-            st.write("**Problema:** Vender sem saber se consegue entregar. | **Solução:** Slots de Capacidade. | **Resultado:** Crescimento sustentável.")
+            st.write("Slots de Capacidade mensais. Resultado: Crescimento sustentável.")
         with st.expander("📈 6. Indicadores e Rotina", expanded=True):
-            st.write("**Problema:** Dashboard 'enfeite'. | **Solução:** Painel semanal acionável. | **Resultado:** Governança ativa dos sócios.")
+            st.write("Painel semanal acionável. Resultado: Governança ativa dos sócios.")
 
 elif passo == "3. Diagnóstico Estratégico":
     st.markdown('<p class="titulo-sessao">Mapeamento de Percepções e Gargalos</p>', unsafe_allow_html=True)
-    st.markdown('<p class="sub-sessao">Fase de Investigação Profunda (40-50 min)</p>', unsafe_allow_html=True)
-
     tab_financeiro, tab_operacional, tab_comercial, tab_futuro = st.tabs([
         "💰 Saúde Financeira", "⚙️ Eficiência Operacional", "🚀 Comercial e Vendas", "🔮 Visão de Futuro"
     ])
@@ -86,7 +79,7 @@ elif passo == "3. Diagnóstico Estratégico":
         st.markdown('<p class="pergunta-texto">3. Vazamentos de Receita</p>', unsafe_allow_html=True)
         st.multiselect("Onde perdem dinheiro sem cobrar?", ["Reuniões extras", "Urgências", "Retrabalho", "Consultoria"], key="q_vazamento")
 
-    with tab_operacional: # CORRIGIDO: Agora bate com o nome da variável tab_operacional acima
+    with tab_operacional:
         st.markdown('<p class="pergunta-texto">4. Drenos de Energia (Segmentação)</p>', unsafe_allow_html=True)
         st.multiselect("Segmentos críticos:", ["Simples", "Presumido", "MEI", "Rural"], key="q2")
         st.markdown('<p class="pergunta-texto">5. Sobrecarga do Time (0-10)</p>', unsafe_allow_html=True)
@@ -108,11 +101,8 @@ elif passo == "3. Diagnóstico Estratégico":
 
 elif passo == "4. Registro Final":
     st.markdown('<p class="titulo-sessao">Consolidação de Dados</p>', unsafe_allow_html=True)
-    st.write("Clique abaixo para salvar o diagnóstico oficial na planilha do Google.")
-
-    if st.button("🚀 Salvar Diagnóstico"):
+    if st.button("🚀 Salvar Diagnóstico na Planilha"):
         try:
-            # Capturando todos os dados com tratamento para campos de multiselect
             vazamentos = ", ".join(st.session_state.get('q_vazamento', []))
             segmentos = ", ".join(st.session_state.get('q2', []))
             
@@ -134,13 +124,11 @@ elif passo == "4. Registro Final":
             df_atual = conn.read(worksheet="Página1")
             df_novo = pd.DataFrame([novo_registro])
             df_final = pd.concat([df_atual, df_novo], ignore_index=True)
-            
             conn.update(worksheet="Página1", data=df_final)
             st.balloons()
             st.success("Dados registrados com sucesso!")
         except Exception as e:
-            st.error(f"Erro ao salvar. Verifique se os cabeçalhos da planilha batem ou se as Secrets estão ok. Erro: {e}")
+            st.error(f"Erro: {e}")
 
-# --- RODAPÉ ---
 st.divider()
-st.caption("Labor Business - Inteligência em Gestão e Resultados")
+st.caption("Labor Business - Inteligência em Gestão")
