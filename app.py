@@ -91,10 +91,14 @@ elif passo == "4. Materiais (R1)":
     st.markdown('<div class="doc-check">📄 <b>Comercial:</b> Contratos, Propostas e Tabela de Preços.</div>', unsafe_allow_html=True)
     st.warning("⚠️ Solicitar envio em até 48h.")
 
-# --- REUNIÃO 2: BLOCOS 5 E 6 ---
+# --- ADICIONE O ITEM 7 NO MENU LATERAL ---
+# options=[..., "5. Arquitetura (R2)", "6. Escopo e Pacotes (R2)", "7. Registro da R2"]
+
 elif passo == "5. Arquitetura (R2)":
-    st.markdown('<p class="titulo-sessao">Reunião 2: Arquitetura do Método</p>', unsafe_allow_html=True)
-    st.markdown('<p class="secao-header">✅ Conferência de Materiais Enviados</p>', unsafe_allow_html=True)
+    st.markdown('<p class="titulo-sessao">Reunião 2: Arquitetura e Raio-X</p>', unsafe_allow_html=True)
+    
+    # Conferência de Materiais
+    st.markdown('<p class="secao-header">✅ Conferência de Materiais</p>', unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
         st.checkbox("Plano de Contas", key="chk_plano_r2")
@@ -102,58 +106,69 @@ elif passo == "5. Arquitetura (R2)":
     with c2:
         st.checkbox("Faturamento 12 meses", key="chk_fat_r2")
         st.checkbox("Lista de Time", key="chk_time_r2")
-    
+
     st.divider()
-    st.markdown('<p class="secao-header">📊 Resumo do Diagnóstico (R1)</p>', unsafe_allow_html=True)
+
+    # DETALHAMENTO MÁXIMO DO DIAGNÓSTICO (R1)
+    st.markdown('<p class="secao-header">📊 Diagnóstico Detalhado (Baseado na R1)</p>', unsafe_allow_html=True)
     try:
         df_hist = conn.read(worksheet="Página1")
-        ult = df_hist.iloc[-1]
-        st.info(f"**Prioridade definida na R1:** {ult['Prioridade_30_Dias']}")
-    except: st.write("Dados da R1 não encontrados.")
+        u = df_hist.iloc[-1] # Último registro
+        
+        # Cards de Destaque
+        col_d1, col_d2, col_d3 = st.columns(3)
+        col_d1.metric("Nível de Estresse", f"{u['Nivel_Estresse']}/10", delta="Crítico" if int(u['Nivel_Estresse']) > 7 else None)
+        col_d2.metric("Gargalo Principal", u['Gargalo_Quebra'])
+        col_d3.metric("Clareza de Preço", u['Precificacao'])
+
+        st.markdown('<div class="destaque-box">', unsafe_allow_html=True)
+        st.write(f"🎯 **Prioridade Estratégica:** {u['Prioridade_30_Dias']}")
+        st.write(f"💸 **Vazamentos Identificados:** {u['Vazamentos']}")
+        st.write(f"🚧 **Barreiras Mapeadas:** {u['Barreiras']}")
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Análise Consultiva (Afirmações Labor Business)
+        st.write("### 🧠 Análise Labor Business")
+        st.info(f"O setor de **{u['Gargalo_Quebra']}** está operando no limite. A rentabilidade está sendo drenada por **{u['Vazamentos']}**. "
+                f"Para atingir o objetivo de **{u['Prioridade_30_Dias']}**, a padronização do escopo no Passo 6 é mandatória.")
+    except:
+        st.warning("Dados da Reunião 1 não encontrados na planilha.")
 
 elif passo == "6. Escopo e Pacotes (R2)":
+    # ... (Mantenha o código do Passo 6 anterior, ele já está funcional para a aba Planejamento_Pacotes)
     st.markdown('<p class="titulo-sessao">Reunião 2: Definição de Escopo e Pacotes</p>', unsafe_allow_html=True)
+    # [Código de input de pacotes aqui]
+
+elif passo == "7. Registro da R2":
+    st.markdown('<p class="titulo-sessao">📝 Ata e Registro Detalhado (R2)</p>', unsafe_allow_html=True)
     
-    col_a, col_b = st.columns(2)
-    with col_a:
-        nome_plano = st.text_input("Nome do Plano:", placeholder="Ex: Plano Essencial")
-        itens_recorrentes = st.text_area("Serviços Recorrentes:", height=100)
-    with col_b:
-        itens_extras = st.text_area("Serviços Extras (Cobrancas à parte):", height=100)
-        criterio_enquadra = st.text_input("Critério de Enquadramento:", placeholder="Ex: Faturamento até 100k")
+    st.markdown('<p class="secao-header">Pontos Relevantes da Reunião</p>', unsafe_allow_html=True)
+    
+    topicos = st.multiselect("Tópicos Discutidos Hoje:", 
+                             ["Alinhamento de Expectativas", "Definição de Pacotes", "Revisão de Vazamentos", 
+                              "Capacidade Operacional", "Critérios de Reprecificação", "Ajuste de Plano de Contas"])
+    
+    registro_detalhado = st.text_area("Registro Detalhado da Discussão:", 
+                                     placeholder="Descreva as decisões tomadas, falas importantes dos sócios e consensos atingidos...",
+                                     height=250)
+    
+    prox_passos = st.text_area("Próximos Passos (Tarefas):", 
+                               placeholder="Ex: Labor vai simular preços; Escrita vai validar lista de clientes no setor Contábil.")
 
-    p_receio = st.text_area("Maior receio do sócio com este pacote:")
-    p_margem = st.text_input("Margem de lucro desejada:")
-
-    if st.button("💾 REGISTRAR PACOTE"):
+    if st.button("💾 SALVAR ATA DA REUNIÃO 2"):
         try:
-            registro_p = {
-                "Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Cliente": "Escrita Contabilidade",
-                "Nome_Pacote": nome_plano, "Itens_Recorrentes": itens_recorrentes,
-                "Itens_Extras": itens_extras, "Criterio_Enquadramento": criterio_enquadra,
-                "Receio_Socio": p_receio, "Margem_Meta": p_margem
+            registro_ata = {
+                "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                "Cliente": "Escrita Contabilidade",
+                "Reuniao_Ref": "R2 - Arquitetura de Pacotes",
+                "Topicos_Discutidos": ", ".join(topicos),
+                "Registro_Detalhado": registro_detalhado,
+                "Proximos_Passos": prox_passos
             }
-            df_p = conn.read(worksheet="Planejamento_Pacotes")
-            df_novo_p = pd.DataFrame([registro_p]).reindex(columns=df_p.columns)
-            df_final_p = pd.concat([df_p, df_novo_p], ignore_index=True)
-            conn.update(worksheet="Planejamento_Pacotes", data=df_final_p)
-            st.success(f"✅ Pacote '{nome_plano}' adicionado!")
-        except Exception as e: st.error(f"Erro: {e}")
-
-    # --- HISTÓRICO VISUAL ABAIXO DO BOTÃO ---
-    st.markdown('<p class="secao-header">📝 Pacotes Desenhados nesta Reunião</p>', unsafe_allow_html=True)
-    try:
-        df_visual = conn.read(worksheet="Planejamento_Pacotes")
-        # Filtra apenas os registros de hoje para mostrar o progresso da reunião atual
-        hoje = datetime.now().strftime("%d/%m/%Y")
-        df_hoje = df_visual[df_visual['Data'].str.contains(hoje)]
-        
-        if not df_hoje.empty:
-            st.dataframe(df_hoje[['Nome_Pacote', 'Itens_Recorrentes', 'Itens_Extras', 'Margem_Meta']], use_container_width=True)
-        else:
-            st.info("Nenhum pacote registrado hoje ainda.")
-    except:
-        st.write("Aguardando primeiro registro...")
-
-st.divider()
-st.caption("Labor Business - Inteligência em Gestão")
+            df_atas = conn.read(worksheet="Atas_Reuniao")
+            df_final_ata = pd.concat([df_atas, pd.DataFrame([registro_ata])], ignore_index=True)
+            conn.update(worksheet="Atas_Reuniao", data=df_final_ata)
+            st.balloons()
+            st.success("Ata da R2 registrada com sucesso!")
+        except Exception as e:
+            st.error(f"Erro ao salvar: {e}. Verifique se a aba 'Atas_Reuniao' existe.")
