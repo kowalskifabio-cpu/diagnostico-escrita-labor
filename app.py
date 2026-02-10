@@ -147,3 +147,67 @@ elif passo == "5. Mês 1: Arquitetura":
     )
 
     st.info("💡 **Próximo Passo:** Após definir o escopo, aplicaremos o cálculo de custo sobre o Plano de Contas enviado.")
+
+elif passo == "6. Definição de Escopo e Pacotes":
+    st.markdown('<p class="titulo-sessao">🎯 Arquitetura de Pacotes e Serviços</p>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="destaque-box">
+    <strong>Diretriz do Dia:</strong> Eliminar a subjetividade. Se não está no pacote, é extra. 
+    Se é extra, tem preço.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # --- DESENHO DOS PACOTES (CAMPOS ABERTOS) ---
+    col_e1, col_e2 = st.columns(2)
+    
+    with col_e1:
+        st.subheader("📦 Estrutura do Pacote")
+        nome_pacote = st.text_input("Nome Sugerido para o Plano:", placeholder="Ex: Essencial, Business, Premium...")
+        recorrencia = st.text_area("O que compõe a Entrega Recorrente?", 
+                                   help="Liste o que o cliente recebe todo mês pelo valor fixo.",
+                                   placeholder="Ex: Escrituração, Impostos, 01 Reunião trimestral...")
+        
+    with col_e2:
+        st.subheader("⚡ Gatilhos de Extras")
+        extras_texto = st.text_area("O que será cobrado à parte (Fim dos Vazamentos)?", 
+                                    help="Itens que hoje são 'de graça' e passariam a ser cobrados.",
+                                    placeholder="Ex: Parcelamentos, Alterações, IRPF sócios...")
+        criterio = st.text_area("Critério de Enquadramento:", 
+                                placeholder="Ex: Até 50 lançamentos mês ou faturamento até X...")
+
+    # --- PERGUNTAS E AFIRMAÇÕES ESTRATÉGICAS ---
+    st.markdown('<p class="secao-header">💬 Validação com os Sócios</p>', unsafe_allow_html=True)
+    
+    st.markdown('<p class="pergunta-texto">"Ao apresentar este novo pacote, qual o maior receio em relação aos 800 clientes atuais?"</p>', unsafe_allow_html=True)
+    receio_texto = st.text_area("Resposta dos Sócios:", key="p_receio")
+
+    st.markdown('<p class="pergunta-texto">"Qual a meta de margem de lucro desejada para este novo modelo?"</p>', unsafe_allow_html=True)
+    margem_meta = st.text_input("Ex: 30%, 40%...", key="p_margem")
+
+    st.divider()
+
+    # --- BOTÃO DE REGISTRO NA NOVA ABA ---
+    if st.button("💾 Registrar Definições de Escopo"):
+        try:
+            # Conexão com a nova aba 'Planejamento_Pacotes'
+            registro_plano = {
+                "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                "Cliente": "Escrita Contabilidade",
+                "Nome_Pacote": nome_pacote,
+                "Itens_Recorrentes": recorrencia,
+                "Itens_Extras": extras_texto,
+                "Criterio_Precificacao": criterio,
+                "Observacoes_Estrategicas": f"Receio: {receio_texto} | Margem: {margem_meta}"
+            }
+            
+            # Lógica para salvar na aba específica
+            df_pacotes = conn.read(worksheet="Planejamento_Pacotes")
+            df_novo_p = pd.DataFrame([registro_plano])
+            df_final_p = pd.concat([df_pacotes, df_novo_p], ignore_index=True)
+            
+            conn.update(worksheet="Planejamento_Pacotes", data=df_final_p)
+            st.balloons()
+            st.success("Arquitetura de Pacote registrada com sucesso!")
+        except Exception as e:
+            st.error(f"Erro ao salvar: {e}. Certifique-se de criar a aba 'Planejamento_Pacotes' na planilha.")
