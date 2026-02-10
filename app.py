@@ -96,41 +96,54 @@ elif passo == "4. Dados e Documentos":
 elif passo == "5. Mês 1: Arquitetura":
     st.markdown('<p class="titulo-sessao">Mês 1: Arquitetura do Método</p>', unsafe_allow_html=True)
     
-    # CHECKLIST DE MATERIAIS RECEBIDOS
+    # --- 1. CHECKLIST DE MATERIAIS ---
     st.markdown('<p class="secao-header">✅ Conferência de Materiais</p>', unsafe_allow_html=True)
-    st.write("Antes de iniciar, marque o que já foi entregue pela Escrita Contabilidade:")
+    st.write("Verifique a entrega dos documentos necessários para a análise de rentabilidade:")
     
     c1, c2 = st.columns(2)
     with c1:
         st.checkbox("Plano de Contas Atual", key="chk_plano")
         st.checkbox("Estrutura de Centros de Custos", key="chk_cc")
-        st.checkbox("Relatório de Faturamento (12 meses)", key="chk_fat")
     with c2:
+        st.checkbox("Relatório de Faturamento (12 meses)", key="chk_fat")
         st.checkbox("Lista de Colaboradores/Setores", key="chk_time")
-        st.checkbox("Modelos de Contrato e Proposta", key="chk_contrato")
-        st.checkbox("Tabela de Preços Vigente", key="chk_tabela")
 
     st.divider()
 
-    # INÍCIO DA ARQUITETURA DE PRECIFICAÇÃO
-    st.markdown('<p class="secao-header">🎯 Definição de Escopo e Pacotes</p>', unsafe_allow_html=True)
-    st.write("Baseado no diagnóstico, precisamos resolver a rentabilidade e o gargalo do setor Contábil.")
+    # --- 2. DIAGNÓSTICO AUTOMÁTICO (LIDO DA PLANILHA) ---
+    st.markdown('<p class="secao-header">📊 Raio-X do Diagnóstico Anterior</p>', unsafe_allow_html=True)
     
+    # Buscando o último registro da planilha
+    try:
+        df_historico = conn.read(worksheet="Página1")
+        ultimo_diagnostico = df_historico.iloc[-1] # Pega a última linha preenchida
+
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.info(f"**Prioridade Máxima (30 dias):**\n\n{ultimo_diagnostico['Prioridade_30_Dias']}")
+            st.warning(f"**Gargalo Identificado:** Setor {ultimo_diagnostico['Gargalo_Quebra']}")
+        
+        with col_b:
+            st.error(f"**Nível de Sobrecarga:** {ultimo_diagnostico['Nivel_Estresse']}/10")
+            st.markdown(f"**Vazamentos de Lucro:**\n{ultimo_diagnostico['Vazamentos']}")
+
+        with st.expander("🔍 Ver Riscos e Barreiras Mapeados"):
+            st.write(ultimo_diagnostico['Barreiras'])
+            
+    except Exception as e:
+        st.warning("Aguardando carregamento dos dados históricos da planilha.")
+
+    st.divider()
+
+    # --- 3. INÍCIO DA ARQUITETURA DE PRECIFICAÇÃO ---
+    st.markdown('<p class="secao-header">🎯 Definição de Escopo e Pacotes</p>', unsafe_allow_html=True)
+    st.write(f"Com base na prioridade de **{ultimo_diagnostico['Prioridade_30_Dias']}**, vamos desenhar os pacotes:")
+    
+    st.markdown('<p class="pergunta-texto">Serviços que compõem o Recorrente:</p>', unsafe_allow_html=True)
     servicos_base = st.multiselect(
-        "Selecione o que compõe o 'Pacote Essencial' (Recorrente):",
-        ["Escrituração Contábil", "Apuração de Impostos", "Folha de Pagamento", "Certidões Negativas", "Atendimento via WhatsApp", "Reunião Trimestral"],
+        "Selecione os itens do Pacote Base:",
+        ["Escrituração Contábil", "Apuração de Impostos", "Folha de Pagamento", "Certidões Negativas", "Atendimento WhatsApp"],
         default=["Escrituração Contábil", "Apuração de Impostos", "Folha de Pagamento"]
     )
-    
-    st.markdown('<p class="pergunta-texto">Definição de Extras (Fim dos Vazamentos)</p>', unsafe_allow_html=True)
-    st.write("O que passará a ser cobrado separadamente para evitar perda de margem?")
-    extras = st.multiselect(
-        "Itens Extra-Contrato:",
-        ["Alterações Contratuais", "Declaração de IRPF", "Consultorias Específicas", "Parcelamentos", "Recuperação de Impostos"],
-        key="serv_extras"
-    )
 
-    st.info("💡 **Ação Próxima:** Com esses itens definidos, o próximo passo será atribuir o 'Preço Mínimo' para cada pacote no simulador.")
-
-st.divider()
-st.caption("Labor Business - Inteligência em Gestão")
+    st.info("💡 **Próximo Passo:** Após definir o escopo, aplicaremos o cálculo de custo sobre o Plano de Contas enviado.")
