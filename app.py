@@ -35,9 +35,10 @@ with st.sidebar:
             "4. Materiais (R1)", 
             "5. Arquitetura (R2)",
             "6. Escopo e Pacotes (R2)",
-            "7. Registro da R2"
+            "7. Registro da R2",
+            "8. Gestão e NPS (R3)"
         ],
-        icons=["play-fill", "diagram-3", "save", "file-earmark-arrow-up", "graph-up-arrow", "box-seam", "clipboard-data"],
+        icons=["play-fill", "diagram-3", "save", "file-earmark-arrow-up", "graph-up-arrow", "box-seam", "clipboard-data", "star-fill"],
         menu_icon="cast", default_index=0,
         styles={"nav-link-selected": {"background-color": "#ff9900"}}
     )
@@ -111,7 +112,6 @@ elif passo == "4. Materiais (R1)":
 # --- BLOCO 5: ARQUITETURA (R2) ---
 elif passo == "5. Arquitetura (R2)":
     st.markdown('<p class="titulo-sessao">Reunião 2: Arquitetura e Raio-X Detalhado</p>', unsafe_allow_html=True)
-    
     st.markdown('<p class="secao-header">✅ Conferência de Materiais</p>', unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
@@ -127,7 +127,6 @@ elif passo == "5. Arquitetura (R2)":
     try:
         df_hist = conn.read(worksheet="Página1")
         u = df_hist.iloc[-1]
-        
         col_m1, col_m2, col_m3 = st.columns(3)
         col_m1.metric("Nível de Estresse", f"{u['Nivel_Estresse']}/10", delta="Crítico" if int(u['Nivel_Estresse']) > 7 else None)
         col_m2.metric("Gargalo Principal", u['Gargalo_Quebra'])
@@ -141,7 +140,6 @@ elif passo == "5. Arquitetura (R2)":
         - <b>Principais Barreiras:</b> {u['Barreiras']}
         </div>
         """, unsafe_allow_html=True)
-        
         st.info(f"💡 **Análise Labor:** O foco hoje é neutralizar os vazamentos de '{u['Vazamentos']}' através da nova estrutura de pacotes.")
     except:
         st.warning("Dados da R1 não localizados.")
@@ -149,7 +147,6 @@ elif passo == "5. Arquitetura (R2)":
 # --- BLOCO 6: ESCOPO E PACOTES (R2) ---
 elif passo == "6. Escopo e Pacotes (R2)":
     st.markdown('<p class="titulo-sessao">🎯 Definição de Escopo e Pacotes (R2)</p>', unsafe_allow_html=True)
-    
     col_p1, col_p2 = st.columns(2)
     with col_p1:
         nome_p = st.text_input("Nome do Plano:", placeholder="Ex: Plano Essencial")
@@ -176,7 +173,6 @@ elif passo == "6. Escopo e Pacotes (R2)":
             st.success("✅ Pacote registrado!")
         except Exception as e: st.error(f"Erro: {e}")
 
-    # Histórico de pacotes desta reunião
     st.markdown('<p class="secao-header">📝 Pacotes Desenhados nesta Reunião</p>', unsafe_allow_html=True)
     try:
         df_visual = conn.read(worksheet="Planejamento_Pacotes")
@@ -186,29 +182,68 @@ elif passo == "6. Escopo e Pacotes (R2)":
 # --- BLOCO 7: REGISTRO DA R2 (ATA) ---
 elif passo == "7. Registro da R2":
     st.markdown('<p class="titulo-sessao">📝 Registro Detalhado e Ata (R2)</p>', unsafe_allow_html=True)
-    
-    topicos = st.multiselect("Tópicos Discutidos Hoje:", 
-                             ["Alinhamento Inicial", "Definição de Pacotes", "Revisão de Vazamentos", "Capacidade Operacional"])
-    
+    topicos = st.multiselect("Tópicos Discutidos Hoje:", ["Alinhamento Inicial", "Definição de Pacotes", "Revisão de Vazamentos", "Capacidade Operacional"])
     ata_detalhada = st.text_area("Registro Detalhado da Discussão (Ata):", height=300)
     proximos = st.text_area("Próximos Passos (Ações e Responsáveis):")
 
     if st.button("💾 SALVAR REGISTRO DA R2"):
         try:
             registro_ata = {
-                "Data": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                "Cliente": "Escrita Contabilidade",
-                "Reuniao_Ref": "R2 - Arquitetura",
-                "Topicos_Discutidos": ", ".join(topicos),
-                "Registro_Detalhado": ata_detalhada,
-                "Proximos_Passos": proximos
+                "Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Cliente": "Escrita Contabilidade",
+                "Reuniao_Ref": "R2 - Arquitetura", "Topicos_Discutidos": ", ".join(topicos),
+                "Registro_Detalhado": ata_detalhada, "Proximos_Passos": proximos
             }
             df_a = conn.read(worksheet="Atas_Reuniao")
             df_f_a = pd.concat([df_a, pd.DataFrame([registro_ata])], ignore_index=True)
             conn.update(worksheet="Atas_Reuniao", data=df_f_a)
             st.balloons(); st.success("✅ Ata da R2 registrada com sucesso!")
-        except Exception as e:
-            st.error(f"Erro ao salvar: {e}. Certifique-se de criar a aba 'Atas_Reuniao'.")
+        except Exception as e: st.error(f"Erro ao salvar: {e}")
+
+# --- BLOCO 8: GESTÃO E NPS (R3) ---
+elif passo == "8. Gestão e NPS (R3)":
+    st.markdown('<p class="titulo-sessao">Reunião 3: Gestão de Precificação e NPS</p>', unsafe_allow_html=True)
+    
+    # Pesquisa NPS
+    st.markdown('<p class="secao-header">⭐ Pesquisa NPS (Net Promoter Score)</p>', unsafe_allow_html=True)
+    st.write("Espaço para ajustes e registro da estratégia de pesquisa de satisfação.")
+    nps_ajustes = st.text_area("Ajustes necessários no esboço do NPS:", height=150, placeholder="Ex: Alterar gatilho de envio para 30 dias após reajuste...")
+    nps_canal = st.selectbox("Canal de Envio Definido:", ["WhatsApp", "E-mail", "Forms Automático", "Manual"])
+    
+    if st.button("💾 REGISTRAR ESTRATÉGIA NPS"):
+        try:
+            reg_nps = {"Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Cliente": "Escrita Contabilidade", "Ajustes": nps_ajustes, "Canal": nps_canal}
+            df_nps = conn.read(worksheet="Config_NPS")
+            df_f_nps = pd.concat([df_nps, pd.DataFrame([reg_nps])], ignore_index=True)
+            conn.update(worksheet="Config_NPS", data=df_f_nps)
+            st.success("✅ Configurações de NPS salvas!")
+        except Exception as e: st.error(f"Erro: {e}. Verifique a aba 'Config_NPS'.")
+
+    # Indicadores de Gestão
+    st.markdown('<p class="secao-header">📊 Indicadores de Gestão da Precificação</p>', unsafe_allow_html=True)
+    st.write("Defina os KPIs que medirão o sucesso da nova precificação.")
+    col_i1, col_i2 = st.columns(2)
+    with col_i1:
+        kpi_nome = st.text_input("Nome do Indicador:", placeholder="Ex: Margem de Contribuição por Cliente")
+        kpi_def = st.text_area("Definição e Cálculo:", placeholder="Ex: (Faturamento - Custo Direto) / Faturamento")
+    with col_i2:
+        kpi_meta = st.text_input("Meta Esperada:", placeholder="Ex: > 35%")
+        kpi_frequencia = st.selectbox("Frequência de Monitoramento:", ["Mensal", "Trimestral", "Semestral"])
+
+    if st.button("💾 REGISTRAR INDICADORES"):
+        try:
+            reg_kpi = {"Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Cliente": "Escrita Contabilidade", "Indicador": kpi_nome, "Definicao": kpi_def, "Meta": kpi_meta, "Frequencia": kpi_frequencia}
+            df_kpi = conn.read(worksheet="Indicadores_Gestao")
+            df_f_kpi = pd.concat([df_kpi, pd.DataFrame([reg_kpi])], ignore_index=True)
+            conn.update(worksheet="Indicadores_Gestao", data=df_f_kpi)
+            st.success("✅ Indicadores registrados!")
+        except Exception as e: st.error(f"Erro: {e}. Verifique a aba 'Indicadores_Gestao'.")
+
+    # Registro da R3
+    st.markdown('<p class="secao-header">📝 Registro da Reunião 3 (Ata)</p>', unsafe_allow_html=True)
+    ata_r3 = st.text_area("Registro Geral / Ata da R3:", height=200)
+    proximos_r3 = st.text_area("Próximos Passos R3:")
+    if st.button("💾 SALVAR ATA DA R3"):
+        st.balloons(); st.success("Ata da R3 registrada!")
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
