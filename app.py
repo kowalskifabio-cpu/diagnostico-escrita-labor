@@ -19,6 +19,7 @@ st.markdown("""
     .destaque-box { background-color: #f1f3f6; padding: 20px; border-radius: 15px; border-left: 8px solid #ff9900; margin-bottom: 20px; }
     .pergunta-texto { color: #2c3e50; font-weight: bold; font-size: 18px; margin-top: 20px; }
     .doc-check { background-color: #fff4e5; padding: 15px; border-radius: 10px; border: 1px solid #ff9900; margin-bottom: 10px; }
+    .texto-fundamento { font-size: 16px; line-height: 1.6; color: #444; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -37,14 +38,15 @@ with st.sidebar:
             "6. Escopo e Pacotes (R2)",
             "7. Registro da R2",
             "8. Gestão e NPS (R3)",
-            "9. Estratégia Comercial (R4)"
+            "9. Estratégia Comercial (R4)",
+            "10. Fundamentos e DRE"
         ],
-        icons=["play-fill", "diagram-3", "save", "file-earmark-arrow-up", "graph-up-arrow", "box-seam", "clipboard-data", "star-fill", "megaphone-fill"],
+        icons=["play-fill", "diagram-3", "save", "file-earmark-arrow-up", "graph-up-arrow", "box-seam", "clipboard-data", "star-fill", "megaphone-fill", "book-half"],
         menu_icon="cast", default_index=0,
         styles={"nav-link-selected": {"background-color": "#ff9900"}}
     )
     st.divider()
-    st.caption("Fase: Expansão e Conversão")
+    st.caption("Fase: Diagnóstico e Estrutura Econômica")
 
 # --- BLOCO 1: ABERTURA ---
 if passo == "1. Abertura":
@@ -203,81 +205,119 @@ elif passo == "7. Registro da R2":
 # --- BLOCO 8: GESTÃO E NPS (R3) ---
 elif passo == "8. Gestão e NPS (R3)":
     st.markdown('<p class="titulo-sessao">Reunião 3: Gestão de Precificação e NPS</p>', unsafe_allow_html=True)
-    
-    # Pesquisa NPS
     st.markdown('<p class="secao-header">⭐ Pesquisa NPS (Net Promoter Score)</p>', unsafe_allow_html=True)
-    st.write("Espaço para ajustes e registro da estratégia de pesquisa de satisfação.")
-    nps_ajustes = st.text_area("Ajustes necessários no esboço do NPS:", height=150, placeholder="Ex: Alterar gatilho de envio para 30 dias após reajuste...")
+    nps_ajustes = st.text_area("Ajustes necessários no esboço do NPS:", height=150)
     nps_canal = st.selectbox("Canal de Envio Definido:", ["WhatsApp", "E-mail", "Forms Automático", "Manual"])
     
     if st.button("💾 REGISTRAR ESTRATÉGIA NPS"):
         try:
-            reg_nps = {"Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Cliente": "Escrita Contabilidade", "Ajustes": nps_ajustes, "Canal": nps_canal}
+            reg_nps = {"Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Ajustes": nps_ajustes, "Canal": nps_canal}
             df_nps = conn.read(worksheet="Config_NPS")
             df_f_nps = pd.concat([df_nps, pd.DataFrame([reg_nps])], ignore_index=True)
             conn.update(worksheet="Config_NPS", data=df_f_nps)
-            st.success("✅ Configurações de NPS salvas!")
-        except Exception as e: st.error(f"Erro: {e}. Verifique a aba 'Config_NPS'.")
+            st.success("✅ Salvo!")
+        except Exception as e: st.error(f"Erro: {e}")
 
-    # Indicadores de Gestão
-    st.markdown('<p class="secao-header">📊 Indicadores de Gestão da Precificação</p>', unsafe_allow_html=True)
-    st.write("Defina os KPIs que medirão o sucesso da nova precificação.")
+    st.markdown('<p class="secao-header">📊 Indicadores de Gestão</p>', unsafe_allow_html=True)
     col_i1, col_i2 = st.columns(2)
     with col_i1:
-        kpi_nome = st.text_input("Nome do Indicador:", placeholder="Ex: Margem de Contribuição por Cliente")
-        kpi_def = st.text_area("Definição e Cálculo:", placeholder="Ex: (Faturamento - Custo Direto) / Faturamento")
+        kpi_nome = st.text_input("Nome do Indicador:")
+        kpi_def = st.text_area("Definição e Cálculo:")
     with col_i2:
-        kpi_meta = st.text_input("Meta Esperada:", placeholder="Ex: > 35%")
-        kpi_frequencia = st.selectbox("Frequência de Monitoramento:", ["Mensal", "Trimestral", "Semestral"])
+        kpi_meta = st.text_input("Meta Esperada:")
+        kpi_frequencia = st.selectbox("Frequência:", ["Mensal", "Trimestral", "Semestral"])
 
     if st.button("💾 REGISTRAR INDICADORES"):
         try:
-            reg_kpi = {"Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Cliente": "Escrita Contabilidade", "Indicador": kpi_nome, "Definicao": kpi_def, "Meta": kpi_meta, "Frequencia": kpi_frequencia}
+            reg_kpi = {"Data": datetime.now().strftime("%d/%m/%Y %H:%M"), "Indicador": kpi_nome, "Definicao": kpi_def, "Meta": kpi_meta, "Frequencia": kpi_frequencia}
             df_kpi = conn.read(worksheet="Indicadores_Gestao")
             df_f_kpi = pd.concat([df_kpi, pd.DataFrame([reg_kpi])], ignore_index=True)
             conn.update(worksheet="Indicadores_Gestao", data=df_f_kpi)
-            st.success("✅ Indicadores registrados!")
-        except Exception as e: st.error(f"Erro: {e}. Verifique a aba 'Indicadores_Gestao'.")
+            st.success("✅ Indicadores salvos!")
+        except Exception as e: st.error(f"Erro: {e}")
 
-    # Registro da R3
-    st.markdown('<p class="secao-header">📝 Registro da Reunião 3 (Ata)</p>', unsafe_allow_html=True)
-    ata_r3 = st.text_area("Registro Geral / Ata da R3:", height=200)
-    proximos_r3 = st.text_area("Próximos Passos R3:")
-    if st.button("💾 SALVAR ATA DA R3"):
-        st.balloons(); st.success("Ata da R3 registrada!")
-
-# --- BLOCO 9: ESTRATÉGIA COMERCIAL E PNL (R4) ---
+# --- BLOCO 9: ESTRATÉGIA COMERCIAL (R4) ---
 elif passo == "9. Estratégia Comercial (R4)":
     st.markdown('<p class="titulo-sessao">Reunião 4: Estratégia Comercial e Expansão</p>', unsafe_allow_html=True)
-    
-    st.markdown('<p class="secao-header">🚀 Próximos Passos Estratégicos</p>', unsafe_allow_html=True)
     col_e1, col_e2 = st.columns(2)
     with col_e1:
-        st.text_area("Ações de Precificação Atual:", placeholder="Ajustes finos nos contratos vigentes...")
-        st.text_area("Apresentação Comercial:", placeholder="O que mudar na abordagem de vendas?")
+        st.text_area("Ações de Precificação Atual:", placeholder="Ajustes finos nos contratos...")
+        st.text_area("Apresentação Comercial:", placeholder="O que mudar na abordagem?")
     with col_e2:
-        st.text_area("Treinamento de Atendimento:", placeholder="Instruções para a pessoa que fará o contato NPS...")
+        st.text_area("Treinamento de Atendimento:", placeholder="Instruções para o contato NPS...")
         st.number_input("Meta de Recomendações (PNL):", value=5)
 
     st.markdown('<p class="secao-header">🧠 Scripts de Contato (PNL e Conversão)</p>', unsafe_allow_html=True)
     aba_script = st.tabs(["Clientes Insatisfeitos", "Clientes Promotores", "Script Recomendados"])
-    
-    with aba_script[0]:
-        st.write("### Foco: Acolhimento e Reversão")
-        st.text_area("Script Detratores:", height=200, value="Olá [Nome], entendo sua frustração. Nosso objetivo é evoluirmos juntos...")
-    
-    with aba_script[1]:
-        st.write("### Foco: Gatilhos Mentais para Indicação")
-        st.text_area("Script Promotores:", height=200, value="Fico feliz que esteja satisfeito! Quem você conhece que também merece essa tranquilidade? (Pedir as 5 recomendações)")
-        
-    with aba_script[2]:
-        st.write("### Foco: Agendamento de Reuniões")
-        st.text_area("Script para Novos Contatos:", height=200, value="Olá, falo em nome da Escrita. [Nome do Amigo] recomendou seu negócio...")
+    with aba_script[0]: st.text_area("Script Detratores:", height=200, value="Olá [Nome], entendo sua frustração...")
+    with aba_script[1]: st.text_area("Script Promotores:", height=200, value="Fico feliz! Quem você conhece que merece essa tranquilidade?...")
+    with aba_script[2]: st.text_area("Script Recomendados:", height=200, value="Olá, [Nome do Amigo] recomendou seu negócio...")
 
-    st.markdown('<p class="secao-header">📝 Registro da Reunião 4 (Ata)</p>', unsafe_allow_html=True)
-    ata_r4 = st.text_area("Decisões Estratégicas da R4:", height=200)
     if st.button("💾 SALVAR ESTRATÉGIA R4"):
-        st.balloons(); st.success("Estratégia comercial e scripts salvos!")
+        st.balloons(); st.success("Estratégia salva!")
+
+# --- BLOCO 10: FUNDAMENTOS E DRE ---
+elif passo == "10. Fundamentos e DRE":
+    st.markdown('<p class="titulo-sessao">Fundamentação Econômica e Diagnóstico de DRE</p>', unsafe_allow_html=True)
+    
+    with st.container():
+        st.markdown("""
+        <div class="texto-fundamento">
+        <h3>Introdução</h3>
+        Antes de avançar para qualquer desenvolvimento tecnológico, é importante alinhar um ponto essencial: 
+        o desafio atual não está na ausência de uma ferramenta, mas sim na <b>ausência de um modelo de precificação estruturado.</b><br><br>
+        Criar um sistema sem corrigir a lógica econômica que sustenta a precificação levará, inevitavelmente, a um resultado 
+        visualmente bem construído, porém conceitualmente equivocado. O sistema refletirá os mesmos erros que já existem hoje, 
+        apenas de forma mais organizada.<br><br>
+        Por isso, este trabalho foi estruturado em três pilares fundamentais:
+        <ul>
+            <li>Diagnóstico real do desempenho econômico (DRE)</li>
+            <li>Definição de um modelo correto de precificação</li>
+            <li>Estrutura lógica para desenvolvimento do sistema</li>
+        </ul>
+
+        <h3 class="secao-header">1. Diagnóstico do DRE: o que os números realmente mostram</h3>
+        Com base na Demonstração de Resultado do Exercício de <b>2025</b>, é possível extrair uma leitura mais profunda da operação.
+
+        <b>Principais indicadores:</b>
+        <ul>
+            <li>Receita total: R$ 11,88 milhões</li>
+            <li>Despesa total: R$ 11,24 milhões</li>
+            <li>Lucro final: R$ 630 mil</li>
+            <li>Margem líquida aproximada: 5,3%</li>
+        </ul>
+        
+        <b>Análise:</b><br>
+        Embora a empresa apresente lucro, a margem é baixa para o modelo de serviços contábeis. Isso indica que o crescimento da receita não está sendo acompanhado por um controle proporcional de custos ou por uma precificação adequada.<br><br>
+
+        <b>1.1 Custo de pessoal elevado</b><br>
+        As despesas com pessoal somam aproximadamente R$ 6,87 milhões, representando cerca de 58% da receita. Esse percentual está acima do que se considera saudável (ideal entre 35% e 45%).<br><br>
+
+        <b>1.2 Modelo de precificação desconectado da operação</b><br>
+        O modelo atual não reflete o custo real. O que realmente gera custo é o Volume de lançamentos, Documentos fiscais, Número de funcionários e Complexidade.<br><br>
+
+        <h3 class="secao-header">2. Estrutura correta de precificação</h3>
+        A correção passa pela construção de um modelo que relacione custo operacional com margem desejada.
+        
+        <b>2.1 Custo hora da operação:</b> Determinar o custo real por hora produtiva.<br>
+        <b>2.2 Mapeamento de esforço:</b> Lançamentos, notas, funcionários, regime tributário.<br>
+        <b>2.3 Cálculo do custo por cliente:</b> Visibilidade real de consumo da estrutura.<br>
+        <b>2.4 Formação do preço:</b> Margem mínima de 20%, ideal entre 30% e 50%.<br><br>
+
+        <h3 class="secao-header">3. Estrutura do sistema de precificação</h3>
+        O sistema deve ser composto por módulos:
+        <ul>
+            <li><b>Módulo 1:</b> Diagnóstico do cliente</li>
+            <li><b>Módulo 2:</b> Motor de custo (Horas)</li>
+            <li><b>Módulo 3:</b> Motor de precificação (Margens)</li>
+            <li><b>Módulo 4:</b> Análise de carteira (Lucrativos/Neutros/Prejuízo)</li>
+            <li><b>Módulo 5:</b> Reprecificação contínua</li>
+        </ul>
+        
+        <h3>Conclusão</h3>
+        A construção do sistema não deve começar pela tecnologia, mas pela estrutura econômica. Com a base correta, o sistema torna-se um instrumento de gestão capaz de sustentar o crescimento com rentabilidade.
+        </div>
+        """, unsafe_allow_html=True)
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
