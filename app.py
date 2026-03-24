@@ -36,14 +36,15 @@ with st.sidebar:
             "5. Arquitetura (R2)",
             "6. Escopo e Pacotes (R2)",
             "7. Registro da R2",
-            "8. Gestão e NPS (R3)"
+            "8. Gestão e NPS (R3)",
+            "9. Estratégia Comercial (R4)"
         ],
-        icons=["play-fill", "diagram-3", "save", "file-earmark-arrow-up", "graph-up-arrow", "box-seam", "clipboard-data", "star-fill"],
+        icons=["play-fill", "diagram-3", "save", "file-earmark-arrow-up", "graph-up-arrow", "box-seam", "clipboard-data", "star-fill", "megaphone-fill"],
         menu_icon="cast", default_index=0,
         styles={"nav-link-selected": {"background-color": "#ff9900"}}
     )
     st.divider()
-    st.caption("Fase: Arquitetura de Precificação")
+    st.caption("Fase: Expansão e Conversão")
 
 # --- BLOCO 1: ABERTURA ---
 if passo == "1. Abertura":
@@ -244,6 +245,39 @@ elif passo == "8. Gestão e NPS (R3)":
     proximos_r3 = st.text_area("Próximos Passos R3:")
     if st.button("💾 SALVAR ATA DA R3"):
         st.balloons(); st.success("Ata da R3 registrada!")
+
+# --- BLOCO 9: ESTRATÉGIA COMERCIAL E PNL (R4) ---
+elif passo == "9. Estratégia Comercial (R4)":
+    st.markdown('<p class="titulo-sessao">Reunião 4: Estratégia Comercial e Expansão</p>', unsafe_allow_html=True)
+    
+    st.markdown('<p class="secao-header">🚀 Próximos Passos Estratégicos</p>', unsafe_allow_html=True)
+    col_e1, col_e2 = st.columns(2)
+    with col_e1:
+        st.text_area("Ações de Precificação Atual:", placeholder="Ajustes finos nos contratos vigentes...")
+        st.text_area("Apresentação Comercial:", placeholder="O que mudar na abordagem de vendas?")
+    with col_e2:
+        st.text_area("Treinamento de Atendimento:", placeholder="Instruções para a pessoa que fará o contato NPS...")
+        st.number_input("Meta de Recomendações (PNL):", value=5)
+
+    st.markdown('<p class="secao-header">🧠 Scripts de Contato (PNL e Conversão)</p>', unsafe_allow_html=True)
+    aba_script = st.tabs(["Clientes Insatisfeitos", "Clientes Promotores", "Script Recomendados"])
+    
+    with aba_script[0]:
+        st.write("### Foco: Acolhimento e Reversão")
+        st.text_area("Script Detratores:", height=200, value="Olá [Nome], entendo sua frustração. Nosso objetivo é evoluirmos juntos...")
+    
+    with aba_script[1]:
+        st.write("### Foco: Gatilhos Mentais para Indicação")
+        st.text_area("Script Promotores:", height=200, value="Fico feliz que esteja satisfeito! Quem você conhece que também merece essa tranquilidade? (Pedir as 5 recomendações)")
+        
+    with aba_script[2]:
+        st.write("### Foco: Agendamento de Reuniões")
+        st.text_area("Script para Novos Contatos:", height=200, value="Olá, falo em nome da Escrita. [Nome do Amigo] recomendou seu negócio...")
+
+    st.markdown('<p class="secao-header">📝 Registro da Reunião 4 (Ata)</p>', unsafe_allow_html=True)
+    ata_r4 = st.text_area("Decisões Estratégicas da R4:", height=200)
+    if st.button("💾 SALVAR ESTRATÉGIA R4"):
+        st.balloons(); st.success("Estratégia comercial e scripts salvos!")
 
 st.divider()
 st.caption("Labor Business - Inteligência em Gestão")
